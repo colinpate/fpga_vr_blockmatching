@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="System" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element ddr3_writer_gray_in_0
+   {
+      datum _sortIndex
+      {
+         value = "4";
+         type = "int";
+      }
+   }
+   element gray_in_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element gray_in_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element gray_in_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element gray_receiver_0
+   {
+      datum _sortIndex
+      {
+         value = "1";
+         type = "int";
+      }
+   }
+   element local_average_filter_0
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+   }
+   element local_average_pad_0
+   {
+      datum _sortIndex
+      {
+         value = "3";
+         type = "int";
+      }
+   }
+   element pclk_source
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5CSEBA6U23I7" />
+ <parameter name="deviceFamily" value="Cyclone V" />
+ <parameter name="deviceSpeedGrade" value="7" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="hideFromIPCatalog" value="false" />
+ <parameter name="lockedInterfaceDefinition" value="" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName">DE10_NANO_SOC_FB.qpf</parameter>
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="testBenchDutName" value="" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface name="clk" internal="pclk_source.clk_in" type="clock" dir="end" />
+ <interface
+   name="ddr3_writer_gray_in_0_ddr3_write_master"
+   internal="ddr3_writer_gray_in_0.ddr3_write_master"
+   type="avalon"
+   dir="start" />
+ <interface
+   name="ddr3_writer_gray_in_0_ddr3clk_reset_sink"
+   internal="ddr3_writer_gray_in_0.ddr3clk_reset_sink"
+   type="reset"
+   dir="end" />
+ <interface
+   name="ddr3_writer_gray_in_0_ddr3clk_sink"
+   internal="ddr3_writer_gray_in_0.ddr3clk_sink"
+   type="clock"
+   dir="end" />
+ <interface
+   name="ddr3_writer_gray_in_0_fifo_almost_full_conduit"
+   internal="ddr3_writer_gray_in_0.fifo_almost_full_conduit"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="ddr3_writer_gray_in_0_pointer_src"
+   internal="ddr3_writer_gray_in_0.pointer_src"
+   type="avalon_streaming"
+   dir="start" />
+ <interface
+   name="ddr3_writer_gray_in_0_start_1"
+   internal="ddr3_writer_gray_in_0.start_1"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="gray_receiver_0_pixel_sink"
+   internal="gray_receiver_0.pixel_sink"
+   type="avalon_streaming"
+   dir="end" />
+ <interface
+   name="reset"
+   internal="pclk_source.clk_in_reset"
+   type="reset"
+   dir="end" />
+ <module
+   name="ddr3_writer_gray_in_0"
+   kind="ddr3_writer_gray_in"
+   version="1.0"
+   enabled="1">
+  <parameter name="burst_len" value="8" />
+  <parameter name="in_width" value="16" />
+  <parameter name="rotate_buffers" value="0" />
+ </module>
+ <module name="gray_receiver_0" kind="gray_receiver" version="1.0" enabled="1">
+  <parameter name="frame_lines" value="480" />
+  <parameter name="frame_width" value="768" />
+ </module>
+ <module
+   name="local_average_filter_0"
+   kind="local_average_filter_v2"
+   version="1.0"
+   enabled="1">
+  <parameter name="radius" value="8" />
+ </module>
+ <module
+   name="local_average_pad_0"
+   kind="local_average_pad_v2"
+   version="1.0"
+   enabled="1">
+  <parameter name="frame_lines" value="480" />
+  <parameter name="frame_width" value="768" />
+  <parameter name="radius" value="8" />
+ </module>
+ <module name="pclk_source" kind="clock_source" version="18.1" enabled="1">
+  <parameter name="clockFrequency" value="50000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="local_average_filter_0.local_avg_source"
+   end="local_average_pad_0.local_avg_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="local_average_pad_0.pixel_source"
+   end="ddr3_writer_gray_in_0.pixel_data_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="local_average_filter_0.pixel_source"
+   end="local_average_pad_0.pixel_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="gray_receiver_0.pixel_source"
+   end="local_average_filter_0.pixel_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_source.clk"
+   end="local_average_filter_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_source.clk"
+   end="local_average_pad_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_source.clk"
+   end="gray_receiver_0.pclk_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_source.clk"
+   end="ddr3_writer_gray_in_0.pclk_sink" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_source.clk_reset"
+   end="gray_receiver_0.pclk_reset_sink" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_source.clk_reset"
+   end="ddr3_writer_gray_in_0.pclk_reset_sink" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_source.clk_reset"
+   end="local_average_filter_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_source.clk_reset"
+   end="local_average_pad_0.reset" />
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+</system>

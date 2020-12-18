@@ -1,0 +1,17 @@
+db
+incremental_db
+soc_system
+*.sopcinfo
+*.sip
+*.spd
+*.bsf
+*.ppf
+*.cmp
+*.tcl~
+*.dtb
+*.dts
+*.v
+*.csv
+*.xml
+*.html
+*.txt

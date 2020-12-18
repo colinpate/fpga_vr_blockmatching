@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="System" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element block_matching_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element bram_writer_0
+   {
+      datum _sortIndex
+      {
+         value = "4";
+         type = "int";
+      }
+   }
+   element ddr3_reader_fsm_0
+   {
+      datum _sortIndex
+      {
+         value = "5";
+         type = "int";
+      }
+   }
+   element ddr3_reader_vertical_0
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+   }
+   element ddr3clk
+   {
+      datum _sortIndex
+      {
+         value = "1";
+         type = "int";
+      }
+   }
+   element gray_vertical_filter_bank_0
+   {
+      datum _sortIndex
+      {
+         value = "3";
+         type = "int";
+      }
+   }
+   element pclk
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5CSEBA6U23I7" />
+ <parameter name="deviceFamily" value="Cyclone V" />
+ <parameter name="deviceSpeedGrade" value="7" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="hideFromIPCatalog" value="false" />
+ <parameter name="lockedInterfaceDefinition" value="" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName">DE10_NANO_SOC_FB.qpf</parameter>
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="testBenchDutName" value="" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface
+   name="bram_writer_0_avalon_master"
+   internal="bram_writer_0.avalon_master"
+   type="avalon"
+   dir="start" />
+ <interface
+   name="bram_writer_0_avalon_streaming_source"
+   internal="bram_writer_0.avalon_streaming_source"
+   type="avalon_streaming"
+   dir="start" />
+ <interface
+   name="ddr3_reader_fsm_0_cam_0_ptr_sink"
+   internal="ddr3_reader_fsm_0.cam_0_ptr_sink"
+   type="avalon_streaming"
+   dir="end" />
+ <interface
+   name="ddr3_reader_fsm_0_cam_0_start"
+   internal="ddr3_reader_fsm_0.cam_0_start"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="ddr3_reader_fsm_0_cam_1_ptr_sink"
+   internal="ddr3_reader_fsm_0.cam_1_ptr_sink"
+   type="avalon_streaming"
+   dir="end" />
+ <interface
+   name="ddr3_reader_fsm_0_cam_1_start"
+   internal="ddr3_reader_fsm_0.cam_1_start"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="ddr3_reader_vertical_0_ddr3_read_master"
+   internal="ddr3_reader_vertical_0.ddr3_read_master"
+   type="avalon"
+   dir="start" />
+ <interface name="ddr3clk" internal="ddr3clk.clk_in" type="clock" dir="end" />
+ <interface
+   name="ddr3clk_reset"
+   internal="ddr3clk.clk_in_reset"
+   type="reset"
+   dir="end" />
+ <interface name="pclk" internal="pclk.clk_in" type="clock" dir="end" />
+ <interface name="pclk_reset" internal="pclk.clk_in_reset" type="reset" dir="end" />
+ <module name="bram_writer_0" kind="bram_writer" version="1.0" enabled="1">
+  <parameter name="third_cols" value="240" />
+  <parameter name="third_rows" value="480" />
+ </module>
+ <module
+   name="ddr3_reader_fsm_0"
+   kind="ddr3_reader_fsm"
+   version="1.0"
+   enabled="1">
+  <parameter name="test_mode" value="1" />
+ </module>
+ <module
+   name="ddr3_reader_vertical_0"
+   kind="ddr3_reader_vertical"
+   version="1.0"
+   enabled="1">
+  <parameter name="burst_len" value="1" />
+  <parameter name="frame_lines" value="480" />
+  <parameter name="frame_width" value="768" />
+  <parameter name="in_width" value="16" />
+ </module>
+ <module name="ddr3clk" kind="clock_source" version="18.1" enabled="1">
+  <parameter name="clockFrequency" value="100000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="BOTH" />
+ </module>
+ <module
+   name="gray_vertical_filter_bank_0"
+   kind="gray_vertical_filter_bank"
+   version="1.0"
+   enabled="1">
+  <parameter name="frame_lines" value="480" />
+  <parameter name="n_filters" value="16" />
+  <parameter name="radius" value="8" />
+ </module>
+ <module name="pclk" kind="clock_source" version="18.1" enabled="1">
+  <parameter name="clockFrequency" value="100000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="BOTH" />
+ </module>
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="gray_vertical_filter_bank_0.avalon_streaming_source"
+   end="bram_writer_0.bit_pix_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="bram_writer_0.fifo_almost_full_source"
+   end="ddr3_reader_vertical_0.fifo_almost_full_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="ddr3_reader_vertical_0.pixel_source"
+   end="gray_vertical_filter_bank_0.avalon_streaming_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="ddr3_reader_fsm_0.read_addr_src"
+   end="ddr3_reader_vertical_0.start_addr_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk.clk"
+   end="gray_vertical_filter_bank_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk.clk"
+   end="bram_writer_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3clk.clk"
+   end="ddr3_reader_fsm_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3clk.clk"
+   end="ddr3_reader_vertical_0.ddr3clk_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk.clk"
+   end="ddr3_reader_vertical_0.pclk_sink" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3clk.clk_reset"
+   end="ddr3_reader_vertical_0.ddr3clk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk.clk_reset"
+   end="ddr3_reader_vertical_0.pclk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk.clk_reset"
+   end="gray_vertical_filter_bank_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk.clk_reset"
+   end="bram_writer_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3clk.clk_reset"
+   end="ddr3_reader_fsm_0.reset" />
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+</system>

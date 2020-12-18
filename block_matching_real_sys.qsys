@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="System" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element bit_pix_bram_mod_0
+   {
+      datum _sortIndex
+      {
+         value = "8";
+         type = "int";
+      }
+   }
+   element blk_match_ctrl_fsm_0
+   {
+      datum _sortIndex
+      {
+         value = "1";
+         type = "int";
+      }
+   }
+   element blk_match_left
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+   }
+   element blk_match_right
+   {
+      datum _sortIndex
+      {
+         value = "5";
+         type = "int";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element clk_0
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+   element ddr3_writer_supersimple_0
+   {
+      datum _sortIndex
+      {
+         value = "9";
+         type = "int";
+      }
+   }
+   element hamming_dist_left
+   {
+      datum _sortIndex
+      {
+         value = "3";
+         type = "int";
+      }
+   }
+   element hamming_dist_right
+   {
+      datum _sortIndex
+      {
+         value = "6";
+         type = "int";
+      }
+   }
+   element min_dist_finder_left
+   {
+      datum _sortIndex
+      {
+         value = "4";
+         type = "int";
+      }
+   }
+   element min_dist_finder_right
+   {
+      datum _sortIndex
+      {
+         value = "7";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5CSEBA6U23I7" />
+ <parameter name="deviceFamily" value="Cyclone V" />
+ <parameter name="deviceSpeedGrade" value="7" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="hideFromIPCatalog" value="false" />
+ <parameter name="lockedInterfaceDefinition" value="" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName">DE10_NANO_SOC_FB.qpf</parameter>
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="testBenchDutName" value="" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface
+   name="bit_pix_bram_mod_0_wr"
+   internal="bit_pix_bram_mod_0.wr"
+   type="avalon"
+   dir="end" />
+ <interface
+   name="blk_match_ctrl_fsm_0_img_number_sink"
+   internal="blk_match_ctrl_fsm_0.img_number_sink"
+   type="avalon_streaming"
+   dir="end" />
+ <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
+ <interface
+   name="ddr3_writer_supersimple_0_avalon_master"
+   internal="ddr3_writer_supersimple_0.avalon_master"
+   type="avalon"
+   dir="start" />
+ <interface
+   name="ddr3_writer_supersimple_0_avalon_streaming_source"
+   internal="ddr3_writer_supersimple_0.avalon_streaming_source" />
+ <interface
+   name="ddr3_writer_supersimple_0_ddr3clk"
+   internal="ddr3_writer_supersimple_0.ddr3clk"
+   type="clock"
+   dir="end" />
+ <interface
+   name="ddr3_writer_supersimple_0_ddr3clk_reset"
+   internal="ddr3_writer_supersimple_0.ddr3clk_reset"
+   type="reset"
+   dir="end" />
+ <interface
+   name="min_dist_finder_left_out_conduit"
+   internal="min_dist_finder_left.out_conduit"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="min_dist_finder_right_out_conduit"
+   internal="min_dist_finder_right.out_conduit"
+   type="conduit"
+   dir="end" />
+ <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
+ <module
+   name="bit_pix_bram_mod_0"
+   kind="bit_pix_bram_mod"
+   version="1.0"
+   enabled="1" />
+ <module
+   name="blk_match_ctrl_fsm_0"
+   kind="blk_match_ctrl_fsm"
+   version="1.0"
+   enabled="1">
+  <parameter name="bit_frame_h" value="480" />
+  <parameter name="bit_frame_w" value="240" />
+  <parameter name="block_size" value="16" />
+  <parameter name="rd_port_w" value="8" />
+  <parameter name="search_blk_h" value="32" />
+  <parameter name="search_blk_w" value="64" />
+ </module>
+ <module name="blk_match_left" kind="blk_match_new" version="1.0" enabled="1">
+  <parameter name="block_size" value="16" />
+  <parameter name="line_w" value="240" />
+  <parameter name="rd_port_w" value="8" />
+  <parameter name="search_blk_h" value="32" />
+  <parameter name="search_blk_w" value="64" />
+ </module>
+ <module name="blk_match_right" kind="blk_match_new" version="1.0" enabled="1">
+  <parameter name="block_size" value="16" />
+  <parameter name="line_w" value="240" />
+  <parameter name="rd_port_w" value="8" />
+  <parameter name="search_blk_h" value="32" />
+  <parameter name="search_blk_w" value="64" />
+ </module>
+ <module name="clk_0" kind="clock_source" version="18.1" enabled="1">
+  <parameter name="clockFrequency" value="50000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <module
+   name="ddr3_writer_supersimple_0"
+   kind="ddr3_writer_supersimple"
+   version="1.0"
+   enabled="1">
+  <parameter name="burst_len" value="8" />
+  <parameter name="in_width" value="16" />
+  <parameter name="num_pixels" value="2464" />
+ </module>
+ <module
+   name="hamming_dist_left"
+   kind="hamming_dist"
+   version="1.0"
+   enabled="1">
+  <parameter name="blk_size" value="256" />
+  <parameter name="lut_bits_in" value="4" />
+ </module>
+ <module
+   name="hamming_dist_right"
+   kind="hamming_dist"
+   version="1.0"
+   enabled="1">
+  <parameter name="blk_size" value="256" />
+  <parameter name="lut_bits_in" value="4" />
+ </module>
+ <module
+   name="min_dist_finder_left"
+   kind="min_dist_finder"
+   version="1.0"
+   enabled="1">
+  <parameter name="blk_h" value="16" />
+  <parameter name="blk_size" value="256" />
+  <parameter name="search_blk_h" value="32" />
+  <parameter name="search_blk_w" value="64" />
+ </module>
+ <module
+   name="min_dist_finder_right"
+   kind="min_dist_finder"
+   version="1.0"
+   enabled="1">
+  <parameter name="blk_h" value="16" />
+  <parameter name="blk_size" value="256" />
+  <parameter name="search_blk_h" value="32" />
+  <parameter name="search_blk_w" value="64" />
+ </module>
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="min_dist_finder_right.avalon_streaming_source"
+   end="ddr3_writer_supersimple_0.avalon_streaming_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="blk_match_left.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="blk_match_ctrl_fsm_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="blk_match_right.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="hamming_dist_right.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="hamming_dist_left.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="min_dist_finder_right.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="min_dist_finder_left.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="bit_pix_bram_mod_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="ddr3_writer_supersimple_0.pclk" />
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pix_bram_mod_0.centerleft_rd"
+   end="blk_match_left.srch_master">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pix_bram_mod_0.centerright_rd"
+   end="blk_match_right.srch_master">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="blk_match_right.ctrl_conduit"
+   end="blk_match_ctrl_fsm_0.right_control">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="min_dist_finder_left.in_conduit"
+   end="hamming_dist_left.out_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="hamming_dist_left.in_conduit"
+   end="blk_match_left.result_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="blk_match_ctrl_fsm_0.left_control"
+   end="blk_match_left.ctrl_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pix_bram_mod_0.left_rd"
+   end="blk_match_left.blk_master">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="hamming_dist_right.out_conduit"
+   end="min_dist_finder_right.in_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="blk_match_right.result_conduit"
+   end="hamming_dist_right.in_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pix_bram_mod_0.right_rd"
+   end="blk_match_right.blk_master">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="ddr3_writer_supersimple_0.pclk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="blk_match_left.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="blk_match_ctrl_fsm_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="blk_match_right.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="hamming_dist_right.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="hamming_dist_left.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="min_dist_finder_right.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="min_dist_finder_left.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="bit_pix_bram_mod_0.reset" />
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+</system>
