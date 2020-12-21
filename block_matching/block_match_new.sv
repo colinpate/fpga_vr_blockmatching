@@ -40,7 +40,7 @@ module block_match_new #(
     typedef enum {ST_BLK_IDLE, ST_FILL_BLK, ST_BLK_DONE} statetype_blkfiller;
     statetype_blkfiller blkfill_state;
     
-    typedef enum {ST_IDLE, ST_WAIT_FILL, ST_WAIT_SRCH_LEFT, ST_SHIFT_LEFT, ST_WAIT_SRCH_RIGHT, ST_SHIFT_RIGHT, ST_DONE} statetype_rowshifter;
+    typedef enum {ST_IDLE, ST_WAIT_FILL, ST_WAIT_SRCH_LEFT, ST_SHIFT_LEFT_PREP, ST_SHIFT_LEFT, ST_WAIT_SRCH_RIGHT, ST_SHIFT_RIGHT, ST_DONE} statetype_rowshifter;
     statetype_rowshifter rowshifter_state;
     
     logic [block_size - 1:0][block_size - 1:0] blk_block_i;
@@ -222,12 +222,15 @@ module block_match_new #(
         end
     end
     
+    assign coords_out = {shift_row, shift_col};
+    assign blks_valid = (rowshifter_state == ST_SHIFT_RIGHT) || (rowshifter_state == ST_SHIFT_LEFT);
+    
     always @(posedge clk) begin
         if (reset) begin
             rowshifter_state    <= ST_IDLE;
             shift_col           <= 0;
             shift_row           <= 0;
-            blks_valid          <= 0;
+            //blks_valid          <= 0;
             blk_index_o         <= 0;
             start_flop          <= 0;
             srch_line_valid     <= 0;
@@ -248,7 +251,7 @@ module block_match_new #(
             
             case (rowshifter_state)
                 ST_IDLE: begin
-                    blks_valid  <= 0;
+                    //blks_valid  <= 0;
                     if (start_flop) begin
                         srch_start_address_i    <= srch_start_address;
                         blk_start_address_i     <= blk_start_address;
@@ -270,8 +273,8 @@ module block_match_new #(
                     for (int i = 0; i < block_size; i++) begin
                         srch_area[i] <= {srch_area[i][0], srch_area[i][search_blk_w - 1:1]};
                     end
-                    blks_valid  <= 1;
-                    coords_out  <= {shift_row, shift_col};
+                    //blks_valid  <= 1;
+                    //coords_out  <= {shift_row, shift_col};
                     
                     if (shift_col == (search_blk_w - block_size - 1)) begin
                         if (shift_row == (search_blk_h - 1 - block_size)) begin
@@ -282,22 +285,33 @@ module block_match_new #(
                         end
                     end else begin
                         shift_col   <= shift_col + 1;
+                        /*for (int i = 0; i < block_size; i++) begin
+                            srch_area[i] <= {srch_area[i][0], srch_area[i][search_blk_w - 1:1]};
+                        end*/
                     end
                 end
                 
                 ST_WAIT_SRCH_LEFT: begin
-                    blks_valid  <= 0;
-                    if (srch_rdv) begin
-                        rowshifter_state    <= ST_SHIFT_LEFT;
+                    //blks_valid  <= 0;
+                    if (srch_rdv) begin // shift left 1 early
+                        rowshifter_state    <= ST_SHIFT_LEFT_PREP;
                     end
                 end
                 
-                ST_SHIFT_LEFT: begin
+                ST_SHIFT_LEFT_PREP: begin
                     for (int i = 0; i < block_size; i++) begin
                         srch_area[i] <= {srch_area[i][search_blk_w - 2:0], srch_area[i][search_blk_w - 1]};
                     end
-                    blks_valid  <= 1;
-                    coords_out  <= {shift_row, shift_col};
+                    rowshifter_state    <= ST_SHIFT_LEFT;
+                end
+                    
+                
+                ST_SHIFT_LEFT: begin
+                    /*for (int i = 0; i < block_size; i++) begin
+                        srch_area[i] <= {srch_area[i][search_blk_w - 2:0], srch_area[i][search_blk_w - 1]};
+                    end*/
+                    //blks_valid  <= 1;
+                    //coords_out  <= {shift_row, shift_col};
                     
                     if (shift_col == 0) begin
                         if (shift_row == (search_blk_h - block_size - 1)) begin
@@ -308,11 +322,14 @@ module block_match_new #(
                         end
                     end else begin
                         shift_col   <= shift_col - 1;
+                        for (int i = 0; i < block_size; i++) begin
+                            srch_area[i] <= {srch_area[i][search_blk_w - 2:0], srch_area[i][search_blk_w - 1]};
+                        end
                     end
                 end
                 
                 ST_WAIT_SRCH_RIGHT: begin
-                    blks_valid  <= 0;
+                    //blks_valid  <= 0;
                     if (srch_rdv) begin
                         rowshifter_state    <= ST_SHIFT_RIGHT;
                     end
