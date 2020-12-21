@@ -185,6 +185,11 @@
    type="conduit"
    dir="end" />
  <interface
+   name="min_dist_finder_right_avalon_streaming_source"
+   internal="min_dist_finder_right.avalon_streaming_source"
+   type="avalon_streaming"
+   dir="start" />
+ <interface
    name="min_dist_finder_right_out_conduit"
    internal="min_dist_finder_right.out_conduit"
    type="conduit"
@@ -232,7 +237,7 @@
    kind="ddr3_writer_supersimple"
    version="1.0"
    enabled="1">
-  <parameter name="burst_len" value="8" />
+  <parameter name="burst_len" value="2" />
   <parameter name="in_width" value="16" />
   <parameter name="num_pixels" value="2464" />
  </module>
@@ -275,7 +280,7 @@
  <connection
    kind="avalon_streaming"
    version="18.1"
-   start="min_dist_finder_right.avalon_streaming_source"
+   start="min_dist_finder_left.avalon_streaming_source"
    end="ddr3_writer_supersimple_0.avalon_streaming_sink" />
  <connection
    kind="clock"
