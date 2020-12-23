@@ -1510,11 +1510,6 @@
  <connection
    kind="avalon_streaming"
    version="18.1"
-   start="sys_2.bram_writer_0_avalon_streaming_source"
-   end="sys_3.blk_match_ctrl_fsm_0_img_number_sink" />
- <connection
-   kind="avalon_streaming"
-   version="18.1"
    start="sys_0.ddr3_writer_gray_in_0_pointer_src"
    end="sys_2.ddr3_reader_fsm_0_cam_0_ptr_sink" />
  <connection
@@ -1597,6 +1592,17 @@
    version="18.1"
    start="clock_bridge_0.out_clk"
    end="alt_vip_itc_0.is_clk_rst" />
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="sys_3.blk_match_ctrl_fsm_0_bm_status_conduit"
+   end="sys_2.bram_writer_0_bm_status_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
  <connection
    kind="interrupt"
    version="18.1"

@@ -45,6 +45,7 @@ module ddr3_reader_fsm #(
     logic [2:0] cam_index;
     logic [2:0] center_cam_index;
     logic [1:0] third_index;
+    logic [1:0] frame_cntr_reg;
     
     assign cam_0_ptr_ready = cam_ptr_ready;
     assign cam_1_ptr_ready = cam_ptr_ready;
@@ -55,15 +56,20 @@ module ddr3_reader_fsm #(
         if (reset) begin
             cam_ptr_ready   <= 0;
             state           <= ST_IDLE;
+            frame_cntr_reg  <= 0;
         end else begin
             case (state)
                 ST_IDLE: begin
-                    if ((cam_1_ptr_valid && cam_0_ptr_valid) || (test_mode == 1)) begin
-                        if (test_mode == 1) begin
+                    if ((cam_1_ptr_data != frame_cntr_reg) || (test_mode == 1)) begin
+                    //if ((cam_1_ptr_valid && cam_0_ptr_valid) || (test_mode == 1)) begin
+                        /*if (test_mode == 1) begin
                             cam_bases   <= {cam_1_start[31:5], cam_0_start[31:5]};
                         end else begin
                             cam_bases           <= {cam_1_start[31:5] + (cam_1_ptr_data << 17), cam_0_start[31:5] + (cam_0_ptr_data << 17)};
-                        end
+                        end*/
+                        cam_bases           <= {cam_1_start[31:5], cam_0_start[31:5]}; // Pointer is just a counter for now.
+                        frame_cntr_reg      <= cam_1_ptr_data;
+                        
                         center_cam_index    <= 0;
                         cam_index           <= 7;
                         third_index         <= 0;

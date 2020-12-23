@@ -177,8 +177,9 @@ module ddr3_writer_gray_in
                         burst_counter       <= 0;
                         if (rotate_buffers == 1) begin
                             start_addresses     <= {start_addresses[0], start_addresses[3:1]};
-                            pointer_data        <= pointer_data + 1;
+                            //pointer_data        <= pointer_data + 1;
                         end
+                        pointer_data        <= pointer_data + 1; // Do this for now since we're using it as a counter.
                     end else begin
                         if ((fifo_level > (burst_len - 1)) || (fifo_rdfull)) begin
                             state               <= ST_WAIT_WRITE;

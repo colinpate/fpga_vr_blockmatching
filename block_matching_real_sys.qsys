@@ -81,6 +81,14 @@
          type = "String";
       }
    }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element clk_0
    {
       datum _sortIndex
@@ -156,10 +164,13 @@
    type="avalon"
    dir="end" />
  <interface
-   name="blk_match_ctrl_fsm_0_img_number_sink"
-   internal="blk_match_ctrl_fsm_0.img_number_sink"
-   type="avalon_streaming"
+   name="blk_match_ctrl_fsm_0_bm_status_conduit"
+   internal="blk_match_ctrl_fsm_0.bm_status_conduit"
+   type="conduit"
    dir="end" />
+ <interface
+   name="blk_match_ctrl_fsm_0_img_number_sink"
+   internal="blk_match_ctrl_fsm_0.img_number_sink" />
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
  <interface
    name="ddr3_writer_supersimple_0_avalon_master"

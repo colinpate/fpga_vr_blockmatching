@@ -49,6 +49,14 @@
          type = "String";
       }
    }
+   element block_matching_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element bram_writer_0
    {
       datum _sortIndex
@@ -125,9 +133,12 @@
    dir="start" />
  <interface
    name="bram_writer_0_avalon_streaming_source"
-   internal="bram_writer_0.avalon_streaming_source"
-   type="avalon_streaming"
-   dir="start" />
+   internal="bram_writer_0.avalon_streaming_source" />
+ <interface
+   name="bram_writer_0_bm_status_conduit"
+   internal="bram_writer_0.bm_status_conduit"
+   type="conduit"
+   dir="end" />
  <interface
    name="ddr3_reader_fsm_0_cam_0_ptr_sink"
    internal="ddr3_reader_fsm_0.cam_0_ptr_sink"
@@ -162,6 +173,8 @@
  <interface name="pclk" internal="pclk.clk_in" type="clock" dir="end" />
  <interface name="pclk_reset" internal="pclk.clk_in_reset" type="reset" dir="end" />
  <module name="bram_writer_0" kind="bram_writer" version="1.0" enabled="1">
+  <parameter name="num_pix" value="16" />
+  <parameter name="test_mode" value="0" />
   <parameter name="third_cols" value="240" />
   <parameter name="third_rows" value="480" />
  </module>
@@ -178,8 +191,9 @@
    version="1.0"
    enabled="1">
   <parameter name="burst_len" value="1" />
+  <parameter name="frame_full_width" value="768" />
   <parameter name="frame_lines" value="480" />
-  <parameter name="frame_width" value="768" />
+  <parameter name="frame_third_width" value="240" />
   <parameter name="in_width" value="16" />
  </module>
  <module name="ddr3clk" kind="clock_source" version="18.1" enabled="1">

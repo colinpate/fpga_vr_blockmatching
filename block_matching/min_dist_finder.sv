@@ -35,19 +35,22 @@ module min_dist_finder #(
             min_sum         <= 16'hFFFF;
         end else begin
             if (sum_valid) begin
-                if (out_coords == last_out_coords) begin
-                    min_sum_valid   <= 1;
-                end else begin
-                    min_sum_valid   <= 0;
-                end
-                
                 if ((min_sum_sent) || (sum < min_sum)) begin
                     min_sum_sent    <= 0;
                     min_sumh        <= min_sum;
                     min_sum         <= sum;
                     min_xors        <= xors;
-                    min_out_coords  <= out_coords;
+                    min_out_coords  <= {8'hFF, out_coords[7:0]};
                     min_blk_index_o <= blk_index_o;
+                end
+                
+                if (out_coords == last_out_coords) begin
+                    if (min_blk_index_o[11:0] == 12'h000) begin
+                        min_out_coords  <= 16'hFFFF;
+                    end
+                    min_sum_valid   <= 1;
+                end else begin
+                    min_sum_valid   <= 0;
                 end
             end
             

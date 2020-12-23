@@ -16,7 +16,9 @@ module bit_pixel_rotator_bram #(
     output logic        pix_out_wren,
     output logic [18:0] pix_out_addr, // 1 + 2 + $clog2(third_cols * third_rows / num_pix) wide
     
-    output logic [3:0]  image_number
+    output logic [3:0]  image_number,
+    input               bm_idle,
+    input               bm_working_buf
     );
     
     localparam wr_cols = third_cols / num_pix;
@@ -61,7 +63,7 @@ module bit_pixel_rotator_bram #(
     
     //Data_in: {6, 5, 4}: camera index, {3, 2}: third index, {1}: sof, {0}: eof
     
-    typedef enum {ST_IDLE, ST_WAIT_FIFO, ST_READ_FIFO, ST_READ_SECOND_ROW, ST_WRITE} statetype;
+    typedef enum {ST_IDLE, ST_STALL} statetype;
     statetype state;
     
     //logic [7:0]     image_number;
@@ -77,6 +79,7 @@ module bit_pixel_rotator_bram #(
     logic               pix_fifo_rd;
     logic [23:0]        pix_fifo_q;
     logic [15:0]        fifo_out_pix;
+    logic [8:0]         fifo_usedw;
     logic               fifo_empty;
     
     assign pix_out_wren     = (state == ST_IDLE) && (~fifo_empty);
@@ -86,7 +89,7 @@ module bit_pixel_rotator_bram #(
     assign fifo_out_pix     = pix_fifo_q[15:0];
     assign sof              = pix_fifo_q[17];
     assign third_index_in   = pix_fifo_q[19:18];
-    assign fifo_almost_full = 0;
+    assign fifo_almost_full = fifo_usedw > 31;
     
     //int valid_cnt;
     
@@ -97,7 +100,8 @@ module bit_pixel_rotator_bram #(
         .rdreq          (pix_fifo_rd),
         .data           (bit_pix),
         .q              (pix_fifo_q),
-        .empty          (fifo_empty)
+        .empty          (fifo_empty),
+        .usedw          (fifo_usedw)
         );
         
     always @(posedge clk) begin
@@ -119,8 +123,14 @@ module bit_pixel_rotator_bram #(
                                 write_col   <= 0;
                                 wr_addr     <= 0;
                                 if (third_index_in == 2'b10) begin
-                                    buf_out_index   <= !buf_out_index;
-                                    image_number    <= image_number + 1;
+                                    if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
+                                        // Block matching FSM is waiting for new frames, or its not working on buffer we want next.
+                                        buf_out_index   <= !buf_out_index;
+                                        image_number    <= image_number + 1;
+                                    end else begin
+                                        // Block matching FSM is working on the buffer we want to write to :(
+                                        state           <= ST_STALL;
+                                    end
                                 end
                             end else begin
                                 write_col   <= write_col + 1;
@@ -133,51 +143,12 @@ module bit_pixel_rotator_bram #(
                     end
                 end
                 
-                /*ST_WAIT_FIFO: begin
-                    if (pix_fifo_level > 1) begin 
-                        state   <= ST_READ_FIFO;
+                ST_STALL: begin
+                    if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
+                        buf_out_index   <= !buf_out_index;
+                        image_number    <= image_number + 1;
+                        state           <= ST_IDLE;
                     end
-                end
-                
-                ST_READ_FIFO: begin //fifo read is 1, data valid next clock
-                    pix_out_sreg[1] <= fifo_out_pix;
-                    state           <= ST_READ_SECOND_ROW;
-                end
-                
-                ST_READ_SECOND_ROW: begin //data now valid, fifo read is 1 to empty it wout
-                    pix_out_sreg[0] <= fifo_out_pix;
-                    state           <= ST_WRITE;
-                end*/
-                
-                ST_WRITE: begin
-                    /*pix_out_sreg[0] <= {1'b0, pix_out_sreg[0][15:1]};
-                    pix_out_sreg[1] <= {1'b0, pix_out_sreg[1][15:1]};
-                    
-                    if (write_row[3:0] == 4'hF) begin // end of this 16-pixel mini col
-                        if (write_col == 0) begin // end of this row of mini cols
-                            if (write_row == (wr_rows - 1)) begin // all done
-                                state       <= ST_IDLE;
-                                if (third_index == 2'b10) begin
-                                    image_number    <= image_number + 1;
-                                end
-                            end else begin
-                                state       <= ST_WAIT_FIFO;
-                            end
-                            write_col       <= wr_cols - 1;
-                            write_row[8:4]  <= write_row[8:4] + 1;
-                            wr_addr         <= wr_addr + row_inc;
-                            next_col_addr   <= wr_addr + row_inc - 1;
-                        end else begin
-                            write_col       <= write_col - 1;
-                            wr_addr         <= next_col_addr;
-                            next_col_addr   <= next_col_addr - 1;
-                            state           <= ST_WAIT_FIFO;
-                        end
-                        write_row[3:0]  <= 0;
-                    end else begin
-                        wr_addr         <= wr_addr + wr_cols;
-                        write_row[3:0]  <= write_row + 1;
-                    end*/
                 end
             endcase
         end

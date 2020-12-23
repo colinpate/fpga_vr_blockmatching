@@ -10,6 +10,8 @@ module block_match_ctrl_fsm_new #(
     input               reset,
     input               clk,
     
+    output              bm_idle,
+    output              bm_working_buf,
     input [3:0]         img_number_in,
     
     output logic [15:0] blk_addr_left,
@@ -51,6 +53,9 @@ module block_match_ctrl_fsm_new #(
     logic [14:0]    srch_addr;
     logic [3:0]     img_number;
     
+    assign bm_working_buf = img_number[0];
+    assign bm_idle = (state == ST_IDLE) && bm_done;
+    
     assign srch_addr_left = {img_number[0], srch_addr};
     assign srch_addr_right = {img_number[0], srch_addr};
     
@@ -73,7 +78,7 @@ module block_match_ctrl_fsm_new #(
         end else begin
             case (state)
                 ST_IDLE: begin
-                    if (img_number_in != img_number) begin
+                    if ((img_number_in != img_number) && (bm_done)) begin
                         state           <= ST_STARTBM;
                         srch_row_addr   <= row_addr_offset;
                         srch_addr       <= 0;
