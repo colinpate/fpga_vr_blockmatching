@@ -26,7 +26,8 @@ module local_average_filter_v2 #(
     assign sof_i            = pixel[8];
     assign out_pixel        = pixel_reg;
     assign out_pixel_valid  = pixel_valid_reg;
-    assign local_average    = average_pixel;   
+    //assign local_average    = average_pixel; This is wrong, causes output to be delayed by 1
+    assign local_average    = average;
     
     logic [15:0]        sum;
     logic [7:0]         average;

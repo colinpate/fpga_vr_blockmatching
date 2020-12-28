@@ -122,6 +122,14 @@
          type = "int";
       }
    }
+   element debug_0
+   {
+      datum _sortIndex
+      {
+         value = "21";
+         type = "int";
+      }
+   }
    element dipsw_pio
    {
       datum _sortIndex
@@ -585,6 +593,29 @@
   <parameter name="clockFrequencyKnown" value="true" />
   <parameter name="inputClockFrequency" value="0" />
   <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <module
+   name="debug_0"
+   kind="block_matching_real_sys_debug"
+   version="1.0"
+   enabled="1">
+  <parameter name="AUTO_CLK_CLOCK_DOMAIN" value="1" />
+  <parameter name="AUTO_CLK_CLOCK_RATE" value="80000000" />
+  <parameter name="AUTO_CLK_RESET_DOMAIN" value="1" />
+  <parameter name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_AVALON_MASTER_ADDRESS_MAP"><![CDATA[<address-map><slave name='hps_0_bridges.f2h_sdram0_data' start='0x0' end='0x100000000' /></address-map>]]></parameter>
+  <parameter
+     name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_AVALON_MASTER_ADDRESS_WIDTH"
+     value="AddressWidth = 32" />
+  <parameter name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_DDR3CLK_CLOCK_DOMAIN" value="5" />
+  <parameter
+     name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_DDR3CLK_CLOCK_RATE"
+     value="75000000" />
+  <parameter name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_DDR3CLK_RESET_DOMAIN" value="5" />
+  <parameter name="AUTO_DEVICE" value="5CSEBA6U23I7" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
+  <parameter name="AUTO_DEVICE_SPEEDGRADE" value="7" />
+  <parameter name="AUTO_GENERATION_ID" value="0" />
+  <parameter name="AUTO_UNIQUE_ID">$${FILENAME}_debug_0</parameter>
  </module>
  <module name="dipsw_pio" kind="altera_avalon_pio" version="18.1" enabled="1">
   <parameter name="bitClearingEdgeCapReg" value="true" />
@@ -1262,6 +1293,10 @@
   <parameter name="AUTO_UNIQUE_ID" value="$${FILENAME}_sys_1" />
  </module>
  <module name="sys_2" kind="block_matching_sys" version="1.0" enabled="1">
+  <parameter name="AUTO_BRAM_WRITER_0_AVALON_MASTER_1_ADDRESS_MAP"><![CDATA[<address-map><slave name='debug_0_bit_pix_bram_mod_0.wr' start='0x0' end='0x80000' /></address-map>]]></parameter>
+  <parameter
+     name="AUTO_BRAM_WRITER_0_AVALON_MASTER_1_ADDRESS_WIDTH"
+     value="AddressWidth = 19" />
   <parameter name="AUTO_BRAM_WRITER_0_AVALON_MASTER_ADDRESS_MAP"><![CDATA[<address-map><slave name='sys_3_bit_pix_bram_mod_0.wr' start='0x0' end='0x80000' /></address-map>]]></parameter>
   <parameter
      name="AUTO_BRAM_WRITER_0_AVALON_MASTER_ADDRESS_WIDTH"
@@ -1329,6 +1364,15 @@
  <connection
    kind="avalon"
    version="18.1"
+   start="sys_2.bram_writer_0_avalon_master_1"
+   end="debug_0.bit_pix_bram_mod_0_wr">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
    start="sys_2.ddr3_reader_vertical_0_ddr3_read_master"
    end="hps_0.f2h_sdram0_data">
   <parameter name="arbitrationPriority" value="1" />
@@ -1357,6 +1401,15 @@
    kind="avalon"
    version="18.1"
    start="sys_3.ddr3_writer_supersimple_0_avalon_master"
+   end="hps_0.f2h_sdram0_data">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="debug_0.ddr3_writer_supersimple_0_avalon_master"
    end="hps_0.f2h_sdram0_data">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
@@ -1540,6 +1593,7 @@
  <connection kind="clock" version="18.1" start="clk_0.clk" end="mm_bridge_0.clk" />
  <connection kind="clock" version="18.1" start="clk_0.clk" end="ILC.clk" />
  <connection kind="clock" version="18.1" start="bm_clk.clk" end="sys_3.clk" />
+ <connection kind="clock" version="18.1" start="bm_clk.clk" end="debug_0.clk" />
  <connection
    kind="clock"
    version="18.1"
@@ -1560,6 +1614,11 @@
    version="18.1"
    start="ddr3clk.clk"
    end="sys_3.ddr3_writer_supersimple_0_ddr3clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3clk.clk"
+   end="debug_0.ddr3_writer_supersimple_0_ddr3clk" />
  <connection kind="clock" version="18.1" start="ddr3clk.clk" end="sys_2.ddr3clk" />
  <connection
    kind="clock"
@@ -1592,6 +1651,17 @@
    version="18.1"
    start="clock_bridge_0.out_clk"
    end="alt_vip_itc_0.is_clk_rst" />
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="debug_0.bit_pixel_reader_0_conduit_end"
+   end="sys_2.bram_writer_0_bm_status_conduit_b">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
  <connection
    kind="conduit"
    version="18.1"
@@ -1677,6 +1747,11 @@
    kind="reset"
    version="18.1"
    start="ddr3clk.clk_reset"
+   end="debug_0.ddr3_writer_supersimple_0_ddr3clk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3clk.clk_reset"
    end="sys_2.ddr3clk_reset" />
  <connection
    kind="reset"
@@ -1723,6 +1798,11 @@
    version="18.1"
    start="bm_clk.clk_reset"
    end="sys_3.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="bm_clk.clk_reset"
+   end="debug_0.reset" />
  <connection kind="reset" version="18.1" start="clk_0.clk_reset" end="ILC.reset_n" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />

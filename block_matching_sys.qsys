@@ -57,6 +57,14 @@
          type = "String";
       }
    }
+   element block_matching_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element bram_writer_0
    {
       datum _sortIndex
@@ -132,11 +140,21 @@
    type="avalon"
    dir="start" />
  <interface
+   name="bram_writer_0_avalon_master_1"
+   internal="bram_writer_0.avalon_master_1"
+   type="avalon"
+   dir="start" />
+ <interface
    name="bram_writer_0_avalon_streaming_source"
    internal="bram_writer_0.avalon_streaming_source" />
  <interface
    name="bram_writer_0_bm_status_conduit"
    internal="bram_writer_0.bm_status_conduit"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="bram_writer_0_bm_status_conduit_b"
+   internal="bram_writer_0.bm_status_conduit_b"
    type="conduit"
    dir="end" />
  <interface

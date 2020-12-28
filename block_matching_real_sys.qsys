@@ -220,22 +220,24 @@
   <parameter name="bit_frame_w" value="240" />
   <parameter name="block_size" value="16" />
   <parameter name="rd_port_w" value="8" />
-  <parameter name="search_blk_h" value="32" />
-  <parameter name="search_blk_w" value="64" />
+  <parameter name="search_blk_h" value="24" />
+  <parameter name="search_blk_w" value="48" />
  </module>
  <module name="blk_match_left" kind="blk_match_new" version="1.0" enabled="1">
-  <parameter name="block_size" value="16" />
+  <parameter name="block_height" value="16" />
+  <parameter name="block_width" value="16" />
   <parameter name="line_w" value="240" />
   <parameter name="rd_port_w" value="8" />
-  <parameter name="search_blk_h" value="32" />
-  <parameter name="search_blk_w" value="64" />
+  <parameter name="search_blk_h" value="24" />
+  <parameter name="search_blk_w" value="48" />
  </module>
  <module name="blk_match_right" kind="blk_match_new" version="1.0" enabled="1">
-  <parameter name="block_size" value="16" />
+  <parameter name="block_height" value="16" />
+  <parameter name="block_width" value="16" />
   <parameter name="line_w" value="240" />
   <parameter name="rd_port_w" value="8" />
-  <parameter name="search_blk_h" value="32" />
-  <parameter name="search_blk_w" value="64" />
+  <parameter name="search_blk_h" value="24" />
+  <parameter name="search_blk_w" value="48" />
  </module>
  <module name="clk_0" kind="clock_source" version="18.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
@@ -250,7 +252,8 @@
    enabled="1">
   <parameter name="burst_len" value="2" />
   <parameter name="in_width" value="16" />
-  <parameter name="num_pixels" value="2464" />
+  <parameter name="num_pixels" value="2688" />
+  <parameter name="start_address" value="905969664" />
  </module>
  <module
    name="hamming_dist_left"
@@ -275,8 +278,8 @@
    enabled="1">
   <parameter name="blk_h" value="16" />
   <parameter name="blk_size" value="256" />
-  <parameter name="search_blk_h" value="32" />
-  <parameter name="search_blk_w" value="64" />
+  <parameter name="search_blk_h" value="24" />
+  <parameter name="search_blk_w" value="48" />
  </module>
  <module
    name="min_dist_finder_right"
@@ -285,8 +288,8 @@
    enabled="1">
   <parameter name="blk_h" value="16" />
   <parameter name="blk_size" value="256" />
-  <parameter name="search_blk_h" value="32" />
-  <parameter name="search_blk_w" value="64" />
+  <parameter name="search_blk_h" value="24" />
+  <parameter name="search_blk_w" value="48" />
  </module>
  <connection
    kind="avalon_streaming"

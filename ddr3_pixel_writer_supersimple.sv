@@ -3,7 +3,8 @@
 module ddr3_pixel_writer_supersimple
     #(parameter in_width = 16,
     parameter burst_len = 8,
-    parameter num_pixels = 2764800
+    parameter num_pixels = 2764800,
+    parameter start_address = 32'h36000000
     )
     (
     input                   pclk,
@@ -29,9 +30,9 @@ module ddr3_pixel_writer_supersimple
     
     assign ddr3_burstcount = burst_len;
     
-    const logic [31:0] start_address_i  = 32'h36000000;
+    const logic [31:0] start_address_i  = start_address;
     
-    localparam num_writes = num_pixels / pixels_per_write;
+    localparam num_writes = num_pixels / pixels_per_write / burst_len;
     
     typedef enum {ST_IDLE, ST_WAIT_FIFO, ST_FIRST_READ, ST_WAIT_WRITE} statetype;
     statetype state;
@@ -131,8 +132,8 @@ module ddr3_pixel_writer_supersimple
                 ST_WAIT_WRITE: begin
                     if (!ddr3_waitrequest) begin
                         if (burst_index == (burst_len - 1)) begin
-                            write_counter   <= write_counter + burst_len;
-                            if (write_counter == (num_writes - burst_len)) begin
+                            write_counter   <= write_counter + 1;
+                            if (write_counter == (num_writes - 1)) begin
                                 state               <= ST_IDLE;
                             end else begin
                                 state               <= ST_WAIT_FIFO;

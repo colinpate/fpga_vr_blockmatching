@@ -40,7 +40,7 @@ module min_dist_finder #(
                     min_sumh        <= min_sum;
                     min_sum         <= sum;
                     min_xors        <= xors;
-                    min_out_coords  <= {8'hFF, out_coords[7:0]};
+                    min_out_coords  <= out_coords;
                     min_blk_index_o <= blk_index_o;
                 end
                 
