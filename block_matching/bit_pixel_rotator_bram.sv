@@ -18,8 +18,19 @@ module bit_pixel_rotator_bram #(
     
     output logic [3:0]  image_number,
     input               bm_idle,
-    input               bm_working_buf
+    input               bm_working_buf,
+    
+    output logic [15:0] pix_out_b, // num_pix wide
+    output logic        pix_out_wren_b,
+    output logic [18:0] pix_out_addr_b, // 1 + 2 + $clog2(third_cols * third_rows / num_pix) wide
+    
+    output logic [3:0]  image_number_b
     );
+    
+    assign pix_out_b = pix_out;
+    assign pix_out_wren_b = pix_out_wren;
+    assign pix_out_addr_b = pix_out_addr;
+    assign image_number_b = image_number;
     
     localparam wr_cols = third_cols / num_pix;
     localparam wr_rows = third_rows;
