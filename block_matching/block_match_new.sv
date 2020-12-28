@@ -1,6 +1,7 @@
 module block_match_new #(
     parameter rd_port_w = 8,
-    parameter block_size = 16,
+    parameter block_width = 16,
+    parameter block_height = 16,
     parameter search_blk_w = 64,
     parameter search_blk_h = 16,
     parameter line_w = 128
@@ -21,14 +22,14 @@ module block_match_new #(
         input [15:0]            srch_start_address,
         input [15:0]            blk_index,
         
-        output logic [block_size*block_size - 1:0]          blk_block,
-        output logic [block_size*block_size - 1:0]          srch_block,
+        output logic [block_width*block_height - 1:0]          blk_block,
+        output logic [block_width*block_height - 1:0]          srch_block,
         output logic [15:0]                                 coords_out,
         output logic [15:0]                                 blk_index_o,
         output logic                                        blks_valid
     );
     
-    localparam blk_addr_w = block_size / rd_port_w;
+    localparam blk_addr_w = block_width / rd_port_w;
     localparam srch_addr_w = search_blk_w / rd_port_w;
     localparam line_addr_w = line_w / rd_port_w;
     localparam blk_addr_row_inc = line_addr_w - blk_addr_w + 1;
@@ -43,17 +44,17 @@ module block_match_new #(
     typedef enum {ST_IDLE, ST_WAIT_FILL, ST_WAIT_SRCH_LEFT, ST_SHIFT_LEFT_PREP, ST_SHIFT_LEFT, ST_WAIT_SRCH_RIGHT, ST_SHIFT_RIGHT, ST_DONE} statetype_rowshifter;
     statetype_rowshifter rowshifter_state;
     
-    logic [block_size - 1:0][block_size - 1:0] blk_block_i;
-    logic [block_size - 1:0][block_size - 1:0] srch_block_i;
+    logic [block_height - 1:0][block_width - 1:0] blk_block_i;
+    logic [block_height - 1:0][block_width - 1:0] srch_block_i;
     assign blk_block = blk_block_i;
     assign srch_block = srch_block_i;
     
-    logic [block_size - 1:0][search_blk_w - 1:0] srch_area;
+    logic [block_height - 1:0][search_blk_w - 1:0] srch_area;
     logic [search_blk_w - 1:0]  srch_area_next_row;
     
     always_comb begin
-        for (int i = 0; i < block_size; i++) begin
-            srch_block_i[i] = srch_area[i][block_size - 1:0];
+        for (int i = 0; i < block_height; i++) begin
+            srch_block_i[i] = srch_area[i][block_width - 1:0];
         end
     end
     
@@ -89,12 +90,12 @@ module block_match_new #(
             blk_rdv <= blk_read;
             
             if (blk_rdv) begin
-                blk_block_i[block_size - 1][block_size - 1:block_size - rd_port_w]    <= blk_rd_data;
-                blk_block_i[block_size - 1][block_size - rd_port_w - 1:0]             <= blk_block_i[block_size - 1][block_size - 1:rd_port_w];
+                blk_block_i[block_height - 1][block_width - 1:block_width - rd_port_w]  <= blk_rd_data;
+                blk_block_i[block_height - 1][block_width - rd_port_w - 1:0]            <= blk_block_i[block_height - 1][block_width - 1:rd_port_w];
                 blk_line_valid[blk_addr_w - 1]      <= 1'b1;
                 if (&blk_line_valid) begin
                     blk_line_valid[blk_addr_w - 2:0]    <= 0;
-                    blk_block_i[block_size - 2:0]         <= blk_block_i[block_size - 1:1];
+                    blk_block_i[block_height - 2:0]         <= blk_block_i[block_height - 1:1];
                 end else begin
                     blk_line_valid[blk_addr_w - 2:0]    <= blk_line_valid[blk_addr_w - 1:1];
                 end
@@ -115,7 +116,7 @@ module block_match_new #(
                 ST_FILL_BLK: begin
                     if (blk_rd_col == (blk_addr_w - 1)) begin
                         blk_rd_col  <= 0;
-                        if (blk_rd_row == (block_size - 1)) begin
+                        if (blk_rd_row == (block_height - 1)) begin
                             blk_rd_row      <= 0;
                             blk_read        <= 0;
                             blkfill_state   <= ST_BLK_DONE;
@@ -182,7 +183,7 @@ module block_match_new #(
                         end else begin
                             srch_rd_row      <= srch_rd_row + 1;
                             
-                            if ((srch_rd_row >= (block_size - 1)) && (srch_rd_row[0])) begin
+                            if ((srch_rd_row >= (block_height - 1)) && (srch_rd_row[0])) begin
                                 srch_read_rev   <= 1;
                                 srch_rd_addr    <= srch_rd_addr + srch_addr_row_inc + (srch_addr_w - blk_addr_w);
                             end else begin
@@ -194,7 +195,7 @@ module block_match_new #(
                                 end
                             end
                             
-                            if (srch_rd_row >= (block_size)) begin
+                            if (srch_rd_row >= (block_height)) begin
                                 srch_read        <= 0;
                                 srchfill_state   <= ST_WAIT_SHIFT;
                             end else begin
@@ -243,7 +244,7 @@ module block_match_new #(
                 srch_line_valid[srch_addr_w - 1]      <= 1'b1;
                 if (&srch_line_valid) begin
                     srch_line_valid[srch_addr_w - 2:0]  <= 0;
-                    srch_area[block_size - 1:0]        <= {srch_area_next_row, srch_area[block_size - 1:1]};
+                    srch_area[block_height - 1:0]       <= {srch_area_next_row, srch_area[block_height - 1:1]};
                 end else begin
                     srch_line_valid[srch_addr_w - 2:0]                  <= srch_line_valid[srch_addr_w - 1:1];
                 end
@@ -270,14 +271,14 @@ module block_match_new #(
                 end
                 
                 ST_SHIFT_RIGHT: begin
-                    for (int i = 0; i < block_size; i++) begin
+                    for (int i = 0; i < block_height; i++) begin
                         srch_area[i] <= {srch_area[i][0], srch_area[i][search_blk_w - 1:1]};
                     end
                     //blks_valid  <= 1;
                     //coords_out  <= {shift_row, shift_col};
                     
-                    if (shift_col == (search_blk_w - block_size - 1)) begin
-                        if (shift_row == (search_blk_h - 1 - block_size)) begin
+                    if (shift_col == (search_blk_w - block_width - 1)) begin
+                        if (shift_row == (search_blk_h - 1 - block_height)) begin
                             rowshifter_state    <= ST_IDLE;
                         end else begin
                             shift_row           <= shift_row + 1;
@@ -299,7 +300,7 @@ module block_match_new #(
                 end
                 
                 ST_SHIFT_LEFT_PREP: begin
-                    for (int i = 0; i < block_size; i++) begin
+                    for (int i = 0; i < block_height; i++) begin
                         srch_area[i] <= {srch_area[i][search_blk_w - 2:0], srch_area[i][search_blk_w - 1]};
                     end
                     rowshifter_state    <= ST_SHIFT_LEFT;
@@ -314,7 +315,7 @@ module block_match_new #(
                     //coords_out  <= {shift_row, shift_col};
                     
                     if (shift_col == 0) begin
-                        if (shift_row == (search_blk_h - block_size - 1)) begin
+                        if (shift_row == (search_blk_h - block_height - 1)) begin
                             rowshifter_state    <= ST_IDLE;
                         end else begin
                             shift_row           <= shift_row + 1;
@@ -322,7 +323,7 @@ module block_match_new #(
                         end
                     end else begin
                         shift_col   <= shift_col - 1;
-                        for (int i = 0; i < block_size; i++) begin
+                        for (int i = 0; i < block_height; i++) begin
                             srch_area[i] <= {srch_area[i][search_blk_w - 2:0], srch_area[i][search_blk_w - 1]};
                         end
                     end
