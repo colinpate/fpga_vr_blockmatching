@@ -28,11 +28,11 @@ module min_dist_finder #(
     localparam num_sums = (search_blk_h - blk_h) * (search_blk_w - blk_w);
     localparam num_sum_bits = $clog2(num_sums);
     localparam num_sums_inv = (1 << (num_sum_bits + 8)) / num_sums; // 0p8 fixed-point
-    /* num_sums is 72
-    num_sum_bits will be 7
-    inv will be 1 << 15 / 72 = 455
-    sum_sum is 128*72 = 9216
-    product is 4193280
+    /* num_sums is 192
+    num_sum_bits will be 8
+    inv will be 1 << 16 / 192 = 341
+    sum_sum is 128*192 = 24576
+    product is 8380416
     shift right num_sum_bits + 8
     */
     

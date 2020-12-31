@@ -89,6 +89,14 @@
          type = "String";
       }
    }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element clk_0
    {
       datum _sortIndex
@@ -218,26 +226,27 @@
    enabled="1">
   <parameter name="bit_frame_h" value="480" />
   <parameter name="bit_frame_w" value="240" />
-  <parameter name="block_size" value="16" />
+  <parameter name="block_height" value="16" />
+  <parameter name="block_width" value="8" />
   <parameter name="rd_port_w" value="8" />
   <parameter name="search_blk_h" value="24" />
-  <parameter name="search_blk_w" value="48" />
+  <parameter name="search_blk_w" value="32" />
  </module>
  <module name="blk_match_left" kind="blk_match_new" version="1.0" enabled="1">
   <parameter name="block_height" value="16" />
-  <parameter name="block_width" value="16" />
+  <parameter name="block_width" value="8" />
   <parameter name="line_w" value="240" />
   <parameter name="rd_port_w" value="8" />
   <parameter name="search_blk_h" value="24" />
-  <parameter name="search_blk_w" value="48" />
+  <parameter name="search_blk_w" value="32" />
  </module>
  <module name="blk_match_right" kind="blk_match_new" version="1.0" enabled="1">
   <parameter name="block_height" value="16" />
-  <parameter name="block_width" value="16" />
+  <parameter name="block_width" value="8" />
   <parameter name="line_w" value="240" />
   <parameter name="rd_port_w" value="8" />
   <parameter name="search_blk_h" value="24" />
-  <parameter name="search_blk_w" value="48" />
+  <parameter name="search_blk_w" value="32" />
  </module>
  <module name="clk_0" kind="clock_source" version="18.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
@@ -252,7 +261,7 @@
    enabled="1">
   <parameter name="burst_len" value="2" />
   <parameter name="in_width" value="16" />
-  <parameter name="num_pixels" value="2688" />
+  <parameter name="num_pixels" value="5824" />
   <parameter name="start_address" value="905969664" />
  </module>
  <module
@@ -260,7 +269,7 @@
    kind="hamming_dist"
    version="1.0"
    enabled="1">
-  <parameter name="blk_size" value="256" />
+  <parameter name="blk_size" value="128" />
   <parameter name="lut_bits_in" value="4" />
  </module>
  <module
@@ -268,7 +277,7 @@
    kind="hamming_dist"
    version="1.0"
    enabled="1">
-  <parameter name="blk_size" value="256" />
+  <parameter name="blk_size" value="128" />
   <parameter name="lut_bits_in" value="4" />
  </module>
  <module
@@ -277,9 +286,9 @@
    version="1.0"
    enabled="1">
   <parameter name="blk_h" value="16" />
-  <parameter name="blk_size" value="256" />
+  <parameter name="blk_w" value="8" />
   <parameter name="search_blk_h" value="24" />
-  <parameter name="search_blk_w" value="48" />
+  <parameter name="search_blk_w" value="32" />
  </module>
  <module
    name="min_dist_finder_right"
@@ -287,9 +296,9 @@
    version="1.0"
    enabled="1">
   <parameter name="blk_h" value="16" />
-  <parameter name="blk_size" value="256" />
+  <parameter name="blk_w" value="8" />
   <parameter name="search_blk_h" value="24" />
-  <parameter name="search_blk_w" value="48" />
+  <parameter name="search_blk_w" value="32" />
  </module>
  <connection
    kind="avalon_streaming"

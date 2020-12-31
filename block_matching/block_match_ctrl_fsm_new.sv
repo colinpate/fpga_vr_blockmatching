@@ -2,7 +2,9 @@ module block_match_ctrl_fsm_new #(
     parameter rd_port_w = 8,
     parameter bit_frame_w = 960,
     parameter bit_frame_h = 540,
-    parameter block_size = 16,
+    //parameter block_size = 16,
+    parameter block_width = 16,
+    parameter block_height = 16,
     parameter search_blk_w = 64,
     parameter search_blk_h = 32
     )
@@ -32,14 +34,14 @@ module block_match_ctrl_fsm_new #(
     //Block address = search address + (frame_w * ((srch_h - blk_h) / 2))
     
     localparam frame_addr_w              = bit_frame_w / rd_port_w;
-    localparam blk_addr_w                = block_size / rd_port_w;
-    localparam srch_addr_w                = search_blk_w / rd_port_w;
-    localparam blocks_per_row            = (bit_frame_w - search_blk_w) / block_size;
-    localparam blocks_per_col            = (bit_frame_h - search_blk_h) / block_size;
-    localparam blk_row_addr_offset       = (frame_addr_w * (block_size - 1)) + blk_addr_w;
-    localparam row_addr_offset           = frame_addr_w * block_size;
+    localparam blk_addr_w                = block_width / rd_port_w;
+    localparam srch_addr_w               = search_blk_w / rd_port_w;
+    localparam blocks_per_row            = (bit_frame_w - search_blk_w) / block_width;
+    localparam blocks_per_col            = (bit_frame_h - search_blk_h) / block_height;
+    localparam blk_row_addr_offset       = (frame_addr_w * (block_height - 1)) + blk_addr_w;
+    localparam row_addr_offset           = frame_addr_w * block_height;
     
-    localparam right_blk_offset      = frame_addr_w * ((search_blk_h - block_size) / 2);
+    localparam right_blk_offset      = frame_addr_w * ((search_blk_h - block_height) / 2);
     localparam left_blk_offset       = right_blk_offset + srch_addr_w - blk_addr_w;
     
     typedef enum {ST_IDLE, ST_WAITBM, ST_STARTBM} statetype;

@@ -79,6 +79,16 @@ module block_match_new #(
     
     assign done = (rowshifter_state == ST_IDLE);
     
+    logic [block_width - 1:0] next_blk_line;
+    generate
+        if (block_width == rd_port_w) begin
+            assign next_blk_line = blk_rd_data;
+        end else begin
+            assign next_blk_line[block_width - 1:block_width - rd_port_w] = blk_rd_data;
+            assign next_blk_line[block_width - rd_port_w - 1:0] = blk_block_i[block_height - 1][block_width - 1:rd_port_w];
+        end
+    endgenerate
+    
     always @(posedge clk)
     begin
         if (reset) begin
@@ -90,14 +100,19 @@ module block_match_new #(
             blk_rdv <= blk_read;
             
             if (blk_rdv) begin
-                blk_block_i[block_height - 1][block_width - 1:block_width - rd_port_w]  <= blk_rd_data;
-                blk_block_i[block_height - 1][block_width - rd_port_w - 1:0]            <= blk_block_i[block_height - 1][block_width - 1:rd_port_w];
-                blk_line_valid[blk_addr_w - 1]      <= 1'b1;
-                if (&blk_line_valid) begin
-                    blk_line_valid[blk_addr_w - 2:0]    <= 0;
-                    blk_block_i[block_height - 2:0]         <= blk_block_i[block_height - 1:1];
+                //blk_block_i[block_height - 1][block_width - 1:block_width - rd_port_w]  <= blk_rd_data;
+                //blk_block_i[block_height - 1][block_width - rd_port_w - 1:0]            <= blk_block_i[block_height - 1][block_width - 1:rd_port_w];
+                blk_block_i[block_height - 1]       <= next_blk_line;
+                if (block_width > rd_port_w) begin // If this isn't true, blk_line_valid is 1 bit so we shift every time
+                    blk_line_valid[blk_addr_w - 1]      <= 1'b1;
+                    if (&blk_line_valid) begin
+                        blk_line_valid[blk_addr_w - 2:0]    <= 0;
+                        blk_block_i[block_height - 2:0]         <= blk_block_i[block_height - 1:1];
+                    end else begin
+                        blk_line_valid[blk_addr_w - 2:0]    <= blk_line_valid[blk_addr_w - 1:1];
+                    end
                 end else begin
-                    blk_line_valid[blk_addr_w - 2:0]    <= blk_line_valid[blk_addr_w - 1:1];
+                    blk_block_i[block_height - 2:0]         <= blk_block_i[block_height - 1:1];
                 end
             end
             

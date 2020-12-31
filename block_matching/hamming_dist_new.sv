@@ -27,6 +27,7 @@ module hamming_dist_new #(
     logic [1:0][7:0]            in_coords_d1;
     
     logic [blk_size - 1:0]  xor_sreg;
+    logic [blk_size - 1:0]  xor_sreg_d1;
     logic                   xor_sreg_valid;
     logic [15:0]            blk_index_d2;
     logic [1:0][7:0]        in_coords_d2;
@@ -50,11 +51,13 @@ module hamming_dist_new #(
             in_coords_d1    <= in_coords;
             blk_index_d1    <= blk_index_i;
             
+            xor_sreg_d1     <= xor_sreg;
             lut_out_sreg    <= lut_outs;
             lut_outs_valid  <= xor_sreg_valid;
             in_coords_d2    <= in_coords_d1;
             blk_index_d2    <= blk_index_d1;
             
+            xors            <= xor_sreg_d1;
             sum             <= sum_i;
             sum_valid       <= lut_outs_valid;
             out_coords      <= in_coords_d2;
