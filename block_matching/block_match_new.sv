@@ -4,7 +4,8 @@ module block_match_new #(
     parameter block_height = 16,
     parameter search_blk_w = 64,
     parameter search_blk_h = 16,
-    parameter line_w = 128
+    parameter third_w = 240,
+    parameter center_w = 304
     )
     (
         input           clk,
@@ -15,6 +16,7 @@ module block_match_new #(
         output logic [15:0]     blk_rd_addr,
         input [rd_port_w - 1:0] blk_rd_data,
         
+        output logic            srch_read,
         output logic [15:0]     srch_rd_addr,
         input [rd_port_w - 1:0] srch_rd_data,
         
@@ -31,9 +33,10 @@ module block_match_new #(
     
     localparam blk_addr_w = block_width / rd_port_w;
     localparam srch_addr_w = search_blk_w / rd_port_w;
-    localparam line_addr_w = line_w / rd_port_w;
-    localparam blk_addr_row_inc = line_addr_w - blk_addr_w + 1;
-    localparam srch_addr_row_inc = line_addr_w - srch_addr_w + 1;
+    localparam third_addr_w = third_w / rd_port_w;
+    localparam blk_addr_row_inc = third_addr_w - blk_addr_w + 1;
+    localparam center_addr_w = center_w / rd_port_w;
+    localparam srch_addr_row_inc = center_addr_w - srch_addr_w + 1;
     
     typedef enum {ST_SRCH_IDLE, ST_FILL_SRCH, ST_WAIT_SHIFT} statetype_srchfiller;
     statetype_srchfiller srchfill_state;
@@ -66,7 +69,7 @@ module block_match_new #(
     logic [7:0] srch_rd_col;
     logic [31:0] srch_start_address_i;
     logic [31:0] blk_start_address_i;
-    logic srch_read;
+    //logic srch_read;
     logic srch_rdv;
     logic [blk_addr_w - 1:0]    blk_line_valid;
     logic [srch_addr_w - 1:0]   srch_line_valid;

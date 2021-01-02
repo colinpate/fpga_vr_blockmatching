@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="System" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element bit_pixel_conversion_system_0
+   {
+      datum _sortIndex
+      {
+         value = "1";
+         type = "int";
+      }
+   }
+   element block_matching_system_0
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+   }
+   element ddr3_clk_src
+   {
+      datum _sortIndex
+      {
+         value = "3";
+         type = "int";
+      }
+   }
+   element ddr3_writer_supersimple_0
+   {
+      datum _sortIndex
+      {
+         value = "5";
+         type = "int";
+      }
+   }
+   element debug_0
+   {
+      datum _sortIndex
+      {
+         value = "4";
+         type = "int";
+      }
+   }
+   element pclk_src
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5CSEBA6U23I7" />
+ <parameter name="deviceFamily" value="Cyclone V" />
+ <parameter name="deviceSpeedGrade" value="7" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="hideFromIPCatalog" value="false" />
+ <parameter name="lockedInterfaceDefinition" value="" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName">DE10_NANO_SOC_FB.qpf</parameter>
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="testBenchDutName" value="" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface
+   name="bit_pixel_conversion_system_0_cam_0_ptr_sink"
+   internal="bit_pixel_conversion_system_0.cam_0_ptr_sink"
+   type="avalon_streaming"
+   dir="end" />
+ <interface
+   name="bit_pixel_conversion_system_0_cam_0_start_addr"
+   internal="bit_pixel_conversion_system_0.cam_0_start_addr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="bit_pixel_conversion_system_0_cam_1_ptr_sink"
+   internal="bit_pixel_conversion_system_0.cam_1_ptr_sink"
+   type="avalon_streaming"
+   dir="end" />
+ <interface
+   name="bit_pixel_conversion_system_0_cam_1_start_addr"
+   internal="bit_pixel_conversion_system_0.cam_1_start_addr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="bit_pixel_conversion_system_0_ddr3"
+   internal="bit_pixel_conversion_system_0.ddr3"
+   type="avalon"
+   dir="start" />
+ <interface name="ddr3_clk" internal="ddr3_clk_src.clk_in" type="clock" dir="end" />
+ <interface
+   name="ddr3_reset"
+   internal="ddr3_clk_src.clk_in_reset"
+   type="reset"
+   dir="end" />
+ <interface
+   name="ddr3_writer_supersimple_0_avalon_master"
+   internal="ddr3_writer_supersimple_0.avalon_master"
+   type="avalon"
+   dir="start" />
+ <interface
+   name="debug_0_ddr3_writer_supersimple_0_avalon_master"
+   internal="debug_0.ddr3_writer_supersimple_0_avalon_master"
+   type="avalon"
+   dir="start" />
+ <interface name="pclk" internal="pclk_src.clk_in" type="clock" dir="end" />
+ <interface
+   name="pclk_reset"
+   internal="pclk_src.clk_in_reset"
+   type="reset"
+   dir="end" />
+ <module
+   name="bit_pixel_conversion_system_0"
+   kind="bit_pixel_conversion_system"
+   version="1.0"
+   enabled="1">
+  <parameter name="center_cols" value="304" />
+  <parameter name="third_cols" value="240" />
+  <parameter name="third_rows" value="480" />
+ </module>
+ <module
+   name="block_matching_system_0"
+   kind="block_matching_system"
+   version="1.0"
+   enabled="1">
+  <parameter name="blk_h" value="16" />
+  <parameter name="blk_w" value="16" />
+  <parameter name="center_w" value="304" />
+  <parameter name="search_blk_h" value="24" />
+  <parameter name="search_blk_w" value="48" />
+  <parameter name="third_h" value="480" />
+  <parameter name="third_w" value="240" />
+ </module>
+ <module name="ddr3_clk_src" kind="clock_source" version="18.1" enabled="1">
+  <parameter name="clockFrequency" value="50000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <module
+   name="ddr3_writer_supersimple_0"
+   kind="ddr3_writer_supersimple"
+   version="1.0"
+   enabled="1">
+  <parameter name="burst_len" value="8" />
+  <parameter name="in_width" value="16" />
+  <parameter name="num_pixels" value="3360" />
+  <parameter name="start_address" value="905969664" />
+ </module>
+ <module
+   name="debug_0"
+   kind="block_matching_real_sys_debug"
+   version="1.0"
+   enabled="1">
+  <parameter name="AUTO_CLK_CLOCK_DOMAIN" value="3" />
+  <parameter name="AUTO_CLK_CLOCK_RATE" value="50000000" />
+  <parameter name="AUTO_CLK_RESET_DOMAIN" value="3" />
+  <parameter
+     name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_AVALON_MASTER_ADDRESS_MAP"
+     value="" />
+  <parameter
+     name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_AVALON_MASTER_ADDRESS_WIDTH"
+     value="AddressWidth = -1" />
+  <parameter name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_DDR3CLK_CLOCK_DOMAIN" value="1" />
+  <parameter
+     name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_DDR3CLK_CLOCK_RATE"
+     value="50000000" />
+  <parameter name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_DDR3CLK_RESET_DOMAIN" value="1" />
+  <parameter name="AUTO_DEVICE" value="5CSEBA6U23I7" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
+  <parameter name="AUTO_DEVICE_SPEEDGRADE" value="7" />
+  <parameter name="AUTO_GENERATION_ID" value="0" />
+  <parameter name="AUTO_UNIQUE_ID">$${FILENAME}_debug_0</parameter>
+ </module>
+ <module name="pclk_src" kind="clock_source" version="18.1" enabled="1">
+  <parameter name="clockFrequency" value="50000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="block_matching_system_0.mdf_left_streamout"
+   end="ddr3_writer_supersimple_0.avalon_streaming_sink" />
+ <connection kind="clock" version="18.1" start="pclk_src.clk" end="debug_0.clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_src.clk"
+   end="block_matching_system_0.clock_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3_clk_src.clk"
+   end="debug_0.ddr3_writer_supersimple_0_ddr3clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3_clk_src.clk"
+   end="ddr3_writer_supersimple_0.ddr3clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3_clk_src.clk"
+   end="bit_pixel_conversion_system_0.ddr3clk_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_src.clk"
+   end="ddr3_writer_supersimple_0.pclk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_src.clk"
+   end="bit_pixel_conversion_system_0.pclk_sink" />
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="debug_0.bit_pix_bram_mod_0_wr"
+   end="bit_pixel_conversion_system_0.bram_writer_output_1">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="debug_0.bit_pixel_reader_0_conduit_end"
+   end="bit_pixel_conversion_system_0.image_number_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="block_matching_system_0.bm_status_conduit"
+   end="bit_pixel_conversion_system_0.bm_status_conduit">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pixel_conversion_system_0.bram_writer_output_0"
+   end="block_matching_system_0.bit_pix_bram_mod_0_wr">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3_clk_src.clk_reset"
+   end="debug_0.ddr3_writer_supersimple_0_ddr3clk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3_clk_src.clk_reset"
+   end="ddr3_writer_supersimple_0.ddr3clk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3_clk_src.clk_reset"
+   end="bit_pixel_conversion_system_0.ddr3clk_reset_sink" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_src.clk_reset"
+   end="ddr3_writer_supersimple_0.pclk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_src.clk_reset"
+   end="bit_pixel_conversion_system_0.pclk_reset_sink" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_src.clk_reset"
+   end="debug_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_src.clk_reset"
+   end="block_matching_system_0.reset_sink" />
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+</system>

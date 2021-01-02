@@ -3,6 +3,7 @@
 module ddr3_reader_grayfilter_short
     #(parameter in_width = 16,
     parameter frame_third_width = 240,
+    parameter center_width = 304,
     parameter frame_lines = 480,
     parameter frame_full_width = 768,
     parameter burst_len = 1,
@@ -35,6 +36,7 @@ module ddr3_reader_grayfilter_short
     parameter full_line_len     = frame_full_width / pixels_per_rd;
     parameter pix_rd_log        = $clog2(pixels_per_rd);
     parameter frame_third_cols  = frame_third_width / pixels_per_rd;
+    parameter center_cols       = center_width / pixels_per_rd;
     assign ddr3_burstcount      = burst_len;
     
     typedef enum {ST_IDLE, ST_SEND_SOF, ST_WAIT_FIFO, ST_READ, ST_LAST_READ} statetype;
@@ -91,8 +93,10 @@ module ddr3_reader_grayfilter_short
     logic [7:0]     col_number;
     logic [2:0]     cam_index;
     logic [1:0]     third_index;
+    logic [$clog2(center_cols) - 1:0]   current_end_col;
+    assign current_end_col = (third_index == 2'b01) ? center_cols - 1 : frame_third_cols - 1;
     assign sof_bit = (line_number == 0) && (col_number == 0);
-    assign eof_bit = (line_number == (frame_lines - 1)) && (col_number == (frame_third_cols - 1));
+    assign eof_bit = (line_number == (frame_lines - 1)) && (col_number == current_end_col);
     assign info_fifo_data = {1'b0, cam_index, third_index, sof_bit, eof_bit};
     
     gray_info_fifo gray_info_fifo_inst( //8-bit, 64-word, single clock, show-ahead FIFO
@@ -143,7 +147,7 @@ module ddr3_reader_grayfilter_short
                     if (!ddr3_waitrequest) begin
                         if (line_number == (frame_lines - 1)) begin
                             line_number <= 0;
-                            if (col_number == (frame_third_cols - 1)) begin
+                            if (col_number == current_end_col) begin
                                     state <= ST_IDLE;
                             end else begin
                                 state           <= ST_WAIT_FIFO;

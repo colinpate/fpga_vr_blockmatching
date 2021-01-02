@@ -1,5 +1,6 @@
 module bit_pixel_rotator_bram #(
     parameter third_cols = 240,
+    parameter center_cols = 304,
     parameter third_rows = 480,
     parameter num_pix = 16,
     parameter test_mode = 0
@@ -14,7 +15,8 @@ module bit_pixel_rotator_bram #(
     
     output logic [15:0] pix_out, // num_pix wide
     output logic        pix_out_wren,
-    output logic [18:0] pix_out_addr, // 1 + 2 + $clog2(third_cols * third_rows / num_pix) wide
+    output logic [15:0] pix_out_addr, // 1 + 2 + $clog2(third_cols * third_rows / num_pix) wide
+    output logic [1:0]  pix_out_third,
     
     output logic [3:0]  image_number,
     input               bm_idle,
@@ -22,7 +24,8 @@ module bit_pixel_rotator_bram #(
     
     output logic [15:0] pix_out_b, // num_pix wide
     output logic        pix_out_wren_b,
-    output logic [18:0] pix_out_addr_b, // 1 + 2 + $clog2(third_cols * third_rows / num_pix) wide
+    output logic [15:0] pix_out_addr_b, // 1 + 2 + $clog2(third_cols * third_rows / num_pix) wide
+    output logic [1:0]  pix_out_third_b,
     
     output logic [3:0]  image_number_b
     );
@@ -30,11 +33,12 @@ module bit_pixel_rotator_bram #(
     assign pix_out_b = pix_out;
     assign pix_out_wren_b = pix_out_wren;
     assign pix_out_addr_b = pix_out_addr;
+    assign pix_out_third_b = pix_out_third;
     assign image_number_b = image_number;
     
-    localparam wr_cols = third_cols / num_pix;
+    localparam third_wr_cols = third_cols / num_pix;
+    localparam center_wr_cols = center_cols / num_pix;
     localparam wr_rows = third_rows;
-    localparam row_inc = (2 * wr_cols) - 1; // How much to increment the address from one address to the one below it
     
     //16-pixel lines get clocked in row-by-row
     //starting from upper left which is actually the upper right
@@ -81,26 +85,36 @@ module bit_pixel_rotator_bram #(
     logic                           buf_out_index;
     //logic [1:0]                     third_index;
     logic [1:0]                     third_index_in;
-    logic [$clog2(wr_cols) - 1:0]   write_col;
+    logic [$clog2(center_wr_cols) - 1:0]   write_col;
     logic [$clog2(wr_rows) - 1:0]   write_row;
     logic [15:0]                    wr_addr;
     logic                           sof;
     logic                           eof;
+    logic                           writing_center;
+    logic [$clog2(center_wr_cols):0]wr_cols;
     
     logic               pix_fifo_rd;
     logic [23:0]        pix_fifo_q;
     logic [15:0]        fifo_out_pix;
     logic [8:0]         fifo_usedw;
     logic               fifo_empty;
+    logic [15:0]        wr_base_addr;
+    logic [15:0]        next_wr_base_addr;
     
     assign pix_out_wren     = (state == ST_IDLE) && (~fifo_empty);
     assign pix_out          = test_mode ? {buf_out_index, third_index_in, wr_addr[12:0]} : fifo_out_pix;
     assign pix_fifo_rd      = pix_out_wren;
-    assign pix_out_addr     = {buf_out_index, third_index_in, wr_addr};
+    //assign pix_out_addr     = {buf_out_index, third_index_in, wr_addr};
+    assign pix_out_addr     = wr_addr;
+    assign pix_out_third    = third_index_in;
     assign fifo_out_pix     = pix_fifo_q[15:0];
     assign sof              = pix_fifo_q[17];
     assign third_index_in   = pix_fifo_q[19:18];
     assign fifo_almost_full = fifo_usedw > 31;
+    assign writing_center   = (third_index_in == 2'b01);
+    assign wr_cols          = writing_center ? center_wr_cols : third_wr_cols;
+    assign wr_base_addr     = buf_out_index ? (writing_center ? center_wr_cols * wr_rows : third_wr_cols * wr_rows) : 0;
+    assign next_wr_base_addr = (~buf_out_index) ? (writing_center ? center_wr_cols * wr_rows : third_wr_cols * wr_rows) : 0;
     
     //int valid_cnt;
     
@@ -132,12 +146,12 @@ module bit_pixel_rotator_bram #(
                             write_row   <= 0;
                             if (write_col == (wr_cols - 1)) begin
                                 write_col   <= 0;
-                                wr_addr     <= 0;
                                 if (third_index_in == 2'b10) begin
                                     if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
                                         // Block matching FSM is waiting for new frames, or its not working on buffer we want next.
                                         buf_out_index   <= !buf_out_index;
                                         image_number    <= image_number + 1;
+                                        wr_addr         <= next_wr_base_addr;
                                     end else begin
                                         // Block matching FSM is working on the buffer we want to write to :(
                                         state           <= ST_STALL;
@@ -145,7 +159,7 @@ module bit_pixel_rotator_bram #(
                                 end
                             end else begin
                                 write_col   <= write_col + 1;
-                                wr_addr     <= write_col + 1; // The address of the first row of a column is just the index of the column
+                                wr_addr     <= wr_base_addr + write_col + 1; // The address of the first row of a column is just the index of the column
                             end
                         end else begin
                             write_row   <= write_row + 1;
@@ -159,6 +173,7 @@ module bit_pixel_rotator_bram #(
                         buf_out_index   <= !buf_out_index;
                         image_number    <= image_number + 1;
                         state           <= ST_IDLE;
+                        wr_addr         <= next_wr_base_addr;
                     end
                 end
             endcase

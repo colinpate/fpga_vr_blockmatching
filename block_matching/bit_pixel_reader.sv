@@ -3,7 +3,8 @@
 module bit_pixel_reader
     #(
     parameter third_width = 240,
-    parameter third_height = 480
+    parameter third_height = 480,
+    parameter center_width = 304
     )
     (
     input                   pclk,
@@ -31,17 +32,22 @@ module bit_pixel_reader
     statetype state;
     
     localparam third_reads = third_width * third_height / 8; // 8 pixels per read
+    localparam center_reads = center_width * third_height / 8; // 8 pixels per read
     
     logic [1:0] third_index;
     logic [3:0] image_number_reg;
-    logic [14:0] read_address_i;
+    logic [15:0] read_address_i;
+    logic [15:0] end_address_i;
     logic        buf_index;
     logic [7:0] rd_data_i;
     
-    assign rd_address_left = {buf_index, read_address_i};
-    assign rd_address_centerleft = {buf_index, read_address_i};
-    assign rd_address_centerright = {buf_index, read_address_i};
-    assign rd_address_right = {buf_index, read_address_i};
+    assign end_address_i = (third_index == 2'b01) ? (buf_index ? center_reads * 2 : center_reads)
+                                                    : (buf_index ? third_reads * 2 : third_reads);
+    
+    assign rd_address_left = read_address_i;
+    assign rd_address_centerleft = read_address_i;
+    assign rd_address_centerright = read_address_i;
+    assign rd_address_right = read_address_i;
     
     always_comb begin
         case (third_index)
@@ -51,6 +57,8 @@ module bit_pixel_reader
             default: rd_data_i = 8'hF0;
         endcase
     end
+    
+    
     
     assign bit_pixels = (read_address_i == 15'd0) ? 64'hFFFFFFFFFFFFFFFF : {rd_data_i[7], 7'h00, rd_data_i[6], 7'h00, rd_data_i[5], 7'h00, rd_data_i[4], 7'h00, rd_data_i[3], 7'h00, rd_data_i[2], 7'h00, rd_data_i[1], 7'h00, rd_data_i[0], 7'h00};
     
@@ -72,7 +80,7 @@ module bit_pixel_reader
                         image_number_reg    <= image_number;
                         state               <= ST_READING;
                         third_index         <= 0;
-                        read_address_i      <= 0;
+                        read_address_i      <= buf_index ? third_reads : 0; // offset the address
                     end
                 end
                 
@@ -80,8 +88,12 @@ module bit_pixel_reader
                     pixels_valid    <= 0;
                     if (pixels_ready) begin
                         pixels_valid    <= 1;
-                        if (read_address_i == (third_reads - 1)) begin
-                            read_address_i  <= 0;
+                        if (read_address_i == (end_address_i - 1)) begin
+                            if (third_index == 2'b00) begin // Center is next
+                                read_address_i <= buf_index ? center_reads : 0;
+                            end else begin
+                                read_address_i  <= buf_index ? third_reads : 0;
+                            end
                             if (third_index == 2'b10) begin
                                 state               <= ST_IDLE;
                                 third_index         <= 0;

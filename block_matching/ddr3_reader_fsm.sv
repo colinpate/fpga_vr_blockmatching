@@ -1,5 +1,7 @@
 module ddr3_reader_fsm #(
-    parameter test_mode = 0
+    parameter test_mode = 0,
+    parameter center_w = 304,
+    parameter third_w = 240
     )(
     input               clk,
     input               reset,
@@ -31,16 +33,18 @@ module ddr3_reader_fsm #(
         
     */
     
+    localparam center_pad = (srch_w - blk_w) / 16; // start the center third early by this much
+    
+    const logic [15:0]    center_offset = (third_w / 16) - center_pad;
+    const logic [15:0]    right_offset  = third_w * 2 / 16;
     
     //Pointers shifted left 17
     logic                   cam_ptr_ready;
     logic [1:0][26:0]       cam_bases;
     logic [26:0]            out_addr;
     logic [1:0][1:0]        cam_ptrs;
-    //const logic [3:0][15:0] quarter_sizes = {16'hFD20, 16'hA8C0, 16'h5460, 16'h0000}; index * 720 * 480 * 2 / 32
-    //const logic [2:0][15:0] third_sizes   = {16'h3840, 16'h1C20, 16'h0000}; this is wrong for horizontal frames cuz they're split into vertical thirds
     const logic [3:0][16:0] quarter_sizes = {17'h10E00, 17'h0B400, 17'h05A00, 17'h00000}; // index * 768 * 480 * 2bytes_per_pix / 32bytes_per_addr (index * 737280 / 16)
-    const logic [2:0][15:0] third_sizes   = {16'h0000, 16'h000F, 16'h001E}; // index * 240 * 2bytes_per_pix / 32bytes_per_addr
+    const logic [2:0][15:0] third_sizes   = {16'h0000, center_offset, right_offset}; // index * 240 * 2bytes_per_pix / 32bytes_per_addr
     
     logic [2:0] cam_index;
     logic [2:0] center_cam_index;

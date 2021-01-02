@@ -4,7 +4,8 @@ module min_dist_finder #(
     parameter search_blk_w = 64,
     parameter search_blk_h = 16,
     parameter blk_size = blk_h * blk_w,
-    parameter blk_sz_log = $clog2(blk_size)
+    parameter blk_sz_log = $clog2(blk_size),
+    parameter output_confidence = 0
     )
     (
     input                   clk,
@@ -47,8 +48,13 @@ module min_dist_finder #(
     assign confidence = average_sum - min_sum;
     logic min_sum_sent;
     logic [15:0] min_out_coords_i;
-    assign min_out_coords = {confidence[7:0], min_out_coords_i[4:0], 3'b000}; // Just send the X coord for now
-    //assign min_out_coords = min_out_coords_i; // Just send the X coord for now
+    generate
+        if (output_confidence) begin
+            assign min_out_coords = {confidence[7:0], min_out_coords_i[4:0], 3'b000}; // Just send the X coord for now
+        end else begin
+            assign min_out_coords = min_out_coords_i; // Just send the X coord for now
+        end
+    endgenerate
     
     always @(posedge clk) begin
         if (reset) begin
