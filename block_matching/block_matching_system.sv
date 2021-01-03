@@ -249,7 +249,8 @@ module block_matching_system #(
 		.blk_h        (blk_h),
 		.blk_w        (blk_w),
 		.search_blk_w (search_blk_w),
-		.search_blk_h (search_blk_h)
+		.search_blk_h (search_blk_h),
+        .output_confidence  (1)
 	) min_dist_finder_left (
 		.clk             (clk_clk),                                            //                   clock.clk
 		.reset           (~reset_reset_n),                     //                   reset.reset
@@ -269,7 +270,8 @@ module block_matching_system #(
 		.blk_h        (blk_h),
 		.blk_w        (blk_w),
 		.search_blk_w (search_blk_w),
-		.search_blk_h (search_blk_h)
+		.search_blk_h (search_blk_h),
+        .output_confidence  (1)
 	) min_dist_finder_right (
 		.clk             (clk_clk),                                             //                   clock.clk
 		.reset           (~reset_reset_n),                      //                   reset.reset

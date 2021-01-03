@@ -33,7 +33,7 @@ module ddr3_reader_fsm #(
         
     */
     
-    localparam center_pad = (srch_w - blk_w) / 16; // start the center third early by this much
+    localparam center_pad = (center_w - third_w) / 16 / 2; // start the center third early by this much
     
     const logic [15:0]    center_offset = (third_w / 16) - center_pad;
     const logic [15:0]    right_offset  = third_w * 2 / 16;

@@ -247,8 +247,8 @@ soc_system u0 (
     .sys_1_gray_receiver_0_pixel_sink_data                                 (gray_in_data_1),                                 //                     sys_0_gray_receiver_0_pixel_sink.data
     .sys_1_gray_receiver_0_pixel_sink_valid                                (gray_in_valid_1),
     
-    .sys_2_ddr3_reader_fsm_0_cam_0_start_start_addr                        (32'h30000000),                        //                  sys_2_ddr3_reader_fsm_0_cam_0_start.start_addr
-    .sys_2_ddr3_reader_fsm_0_cam_1_start_start_addr                        (32'h31000000),                        //                  sys_2_ddr3_reader_fsm_0_cam_1_start.start_addr
+    .system_0_bit_pixel_conversion_system_0_cam_0_start_addr_address       (32'h30000000),                        //                  sys_2_ddr3_reader_fsm_0_cam_0_start.start_addr
+    .system_0_bit_pixel_conversion_system_0_cam_1_start_addr_address       (32'h31000000),                        //                  sys_2_ddr3_reader_fsm_0_cam_1_start.start_addr
 
     .bm_clk_clk                                                            (bm_clk),                                                            //                                               bm_clk.clk
     .bm_reset_reset_n                                                      (bm_reset)                                                       //                                             bm_reset.reset_n        

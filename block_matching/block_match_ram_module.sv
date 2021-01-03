@@ -4,8 +4,10 @@ module block_match_ram_module #(
     parameter center_width = 304, // 240 + 32 + 32
     parameter rd_width = 8,
     parameter wr_width = 16,
-    parameter wr_ad_w = $clog2(center_width * third_height * 2 / wr_width),
-    parameter rd_ad_w = $clog2(center_width * third_height * 2 / rd_width)
+    parameter wr_ad_w = $clog2(third_width * third_height * 2 / wr_width),
+    parameter rd_ad_w = $clog2(third_width * third_height * 2 / rd_width),
+    parameter center_wr_ad_w = $clog2(center_width * third_height * 2 / wr_width),
+    parameter center_rd_ad_w = $clog2(center_width * third_height * 2 / rd_width)
     ) (
     input           clk,
     input           reset,
@@ -57,8 +59,8 @@ module block_match_ram_module #(
         );
         
     bram_wrapper #(
-        .wr_addr_w  (wr_ad_w),
-        .rd_addr_w  (rd_ad_w),
+        .wr_addr_w  (center_wr_ad_w),
+        .rd_addr_w  (center_rd_ad_w),
         .wr_data_w  (wr_width),
         .rd_data_w  (rd_width),
         .wr_word_depth  (center_write_words),

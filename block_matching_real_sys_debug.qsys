@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="System" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element bit_pix_bram_mod_0
+   {
+      datum _sortIndex
+      {
+         value = "1";
+         type = "int";
+      }
+   }
+   element bit_pixel_reader_0
+   {
+      datum _sortIndex
+      {
+         value = "3";
+         type = "int";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys_debug
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element block_matching_real_sys_debug
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element clk_0
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+   element ddr3_writer_supersimple_0
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5CSEBA6U23I7" />
+ <parameter name="deviceFamily" value="Cyclone V" />
+ <parameter name="deviceSpeedGrade" value="7" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="hideFromIPCatalog" value="false" />
+ <parameter name="lockedInterfaceDefinition" value="" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName">DE10_NANO_SOC_FB.qpf</parameter>
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="testBenchDutName" value="" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface
+   name="bit_pix_bram_mod_0_wr"
+   internal="bit_pix_bram_mod_0.wr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="bit_pixel_reader_0_conduit_end"
+   internal="bit_pixel_reader_0.conduit_end"
+   type="conduit"
+   dir="end" />
+ <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
+ <interface
+   name="ddr3_writer_supersimple_0_avalon_master"
+   internal="ddr3_writer_supersimple_0.avalon_master"
+   type="avalon"
+   dir="start" />
+ <interface
+   name="ddr3_writer_supersimple_0_ddr3clk"
+   internal="ddr3_writer_supersimple_0.ddr3clk"
+   type="clock"
+   dir="end" />
+ <interface
+   name="ddr3_writer_supersimple_0_ddr3clk_reset"
+   internal="ddr3_writer_supersimple_0.ddr3clk_reset"
+   type="reset"
+   dir="end" />
+ <interface
+   name="img_number_sink"
+   internal="bit_pixel_reader_0.avalon_streaming_sink" />
+ <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
+ <module
+   name="bit_pix_bram_mod_0"
+   kind="bit_pix_bram_mod"
+   version="1.0"
+   enabled="1">
+  <parameter name="center_width" value="304" />
+  <parameter name="rd_width" value="8" />
+  <parameter name="third_height" value="480" />
+  <parameter name="third_width" value="240" />
+  <parameter name="wr_width" value="16" />
+ </module>
+ <module
+   name="bit_pixel_reader_0"
+   kind="bit_pixel_reader"
+   version="1.0"
+   enabled="1">
+  <parameter name="center_width" value="304" />
+  <parameter name="third_height" value="480" />
+  <parameter name="third_width" value="240" />
+ </module>
+ <module name="clk_0" kind="clock_source" version="18.1" enabled="1">
+  <parameter name="clockFrequency" value="50000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <module
+   name="ddr3_writer_supersimple_0"
+   kind="ddr3_writer_supersimple"
+   version="1.0"
+   enabled="1">
+  <parameter name="burst_len" value="16" />
+  <parameter name="in_width" value="64" />
+  <parameter name="num_pixels" value="376320" />
+  <parameter name="start_address" value="922746880" />
+ </module>
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="bit_pixel_reader_0.pixel_stream_source"
+   end="ddr3_writer_supersimple_0.avalon_streaming_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="bit_pix_bram_mod_0.clock" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="bit_pixel_reader_0.clock_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="clk_0.clk"
+   end="ddr3_writer_supersimple_0.pclk" />
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pixel_reader_0.centerleft_read_master"
+   end="bit_pix_bram_mod_0.centerleft_rd">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pixel_reader_0.centerright_read_master"
+   end="bit_pix_bram_mod_0.centerright_rd">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pixel_reader_0.left_read_master"
+   end="bit_pix_bram_mod_0.left_rd">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="conduit"
+   version="18.1"
+   start="bit_pix_bram_mod_0.right_rd"
+   end="bit_pixel_reader_0.right_read_master">
+  <parameter name="endPort" value="" />
+  <parameter name="endPortLSB" value="0" />
+  <parameter name="startPort" value="" />
+  <parameter name="startPortLSB" value="0" />
+  <parameter name="width" value="0" />
+ </connection>
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="ddr3_writer_supersimple_0.pclk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="bit_pix_bram_mod_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="clk_0.clk_reset"
+   end="bit_pixel_reader_0.reset_sink" />
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+</system>

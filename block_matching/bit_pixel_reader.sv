@@ -38,11 +38,15 @@ module bit_pixel_reader
     logic [3:0] image_number_reg;
     logic [15:0] read_address_i;
     logic [15:0] end_address_i;
+    logic [15:0] start_address_i;
     logic        buf_index;
     logic [7:0] rd_data_i;
+    logic rd_ena;
     
     assign end_address_i = (third_index == 2'b01) ? (buf_index ? center_reads * 2 : center_reads)
                                                     : (buf_index ? third_reads * 2 : third_reads);
+    assign start_address_i = (third_index == 2'b01) ? (buf_index ? center_reads : 0)
+                                                    : (buf_index ? third_reads : 0);
     
     assign rd_address_left = read_address_i;
     assign rd_address_centerleft = read_address_i;
@@ -58,21 +62,21 @@ module bit_pixel_reader
         endcase
     end
     
+    assign rd_ena = (state == ST_READING) && pixels_ready;
     
-    
-    assign bit_pixels = (read_address_i == 15'd0) ? 64'hFFFFFFFFFFFFFFFF : {rd_data_i[7], 7'h00, rd_data_i[6], 7'h00, rd_data_i[5], 7'h00, rd_data_i[4], 7'h00, rd_data_i[3], 7'h00, rd_data_i[2], 7'h00, rd_data_i[1], 7'h00, rd_data_i[0], 7'h00};
+    assign bit_pixels = (read_address_i == start_address_i) ? 64'hFFFFFFFFFFFFFFFF : {rd_data_i[7], 7'h00, rd_data_i[6], 7'h00, rd_data_i[5], 7'h00, rd_data_i[4], 7'h00, rd_data_i[3], 7'h00, rd_data_i[2], 7'h00, rd_data_i[1], 7'h00, rd_data_i[0], 7'h00};
     
     always @(posedge pclk)
     begin
         if (pclk_reset) begin
-            third_index <= 0;
+            third_index         <= 0;
             image_number_reg    <= 0;
             read_address_i      <= 0;
             pixels_valid        <= 0;
             buf_index           <= 0;
             state               <= ST_IDLE;
         end else begin
-            pixels_valid    <= 0;
+            pixels_valid    <= rd_ena;
             
             case (state)
                 ST_IDLE: begin
@@ -80,14 +84,14 @@ module bit_pixel_reader
                         image_number_reg    <= image_number;
                         state               <= ST_READING;
                         third_index         <= 0;
-                        read_address_i      <= buf_index ? third_reads : 0; // offset the address
+                        read_address_i      <= start_address_i; // offset the address
                     end
                 end
                 
                 ST_READING: begin
-                    pixels_valid    <= 0;
+                    //pixels_valid    <= 0;
                     if (pixels_ready) begin
-                        pixels_valid    <= 1;
+                        //pixels_valid    <= 1;
                         if (read_address_i == (end_address_i - 1)) begin
                             if (third_index == 2'b00) begin // Center is next
                                 read_address_i <= buf_index ? center_reads : 0;

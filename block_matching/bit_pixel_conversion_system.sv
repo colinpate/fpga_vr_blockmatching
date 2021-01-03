@@ -72,7 +72,7 @@ module bit_pixel_conversion_system #(
 		.pix_out_b        (bram_writer_0_avalon_master_1_writedata),                   //         avalon_master_1.writedata
 		.pix_out_wren_b   (bram_writer_0_avalon_master_1_write),                       //                        .write
 		.pix_out_addr_b   (bram_writer_0_avalon_master_1_address),                     //                        .address
-		.pix_out_addr_b   (bram_writer_0_avalon_master_1_third),                     //                        .address
+		.pix_out_third_b   (bram_writer_0_avalon_master_1_third),                     //                        .address
 		.image_number_b   (bram_writer_0_bm_status_conduit_b_image_number)             //     bm_status_conduit_b.image_number
 	);
 

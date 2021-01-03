@@ -100,6 +100,7 @@ module bit_pixel_rotator_bram #(
     logic               fifo_empty;
     logic [15:0]        wr_base_addr;
     logic [15:0]        next_wr_base_addr;
+    logic [15:0]        next_third_base_addr;
     
     assign pix_out_wren     = (state == ST_IDLE) && (~fifo_empty);
     assign pix_out          = test_mode ? {buf_out_index, third_index_in, wr_addr[12:0]} : fifo_out_pix;
@@ -113,8 +114,11 @@ module bit_pixel_rotator_bram #(
     assign fifo_almost_full = fifo_usedw > 31;
     assign writing_center   = (third_index_in == 2'b01);
     assign wr_cols          = writing_center ? center_wr_cols : third_wr_cols;
-    assign wr_base_addr     = buf_out_index ? (writing_center ? center_wr_cols * wr_rows : third_wr_cols * wr_rows) : 0;
-    assign next_wr_base_addr = (~buf_out_index) ? (writing_center ? center_wr_cols * wr_rows : third_wr_cols * wr_rows) : 0;
+    localparam third_offset = third_wr_cols * wr_rows;
+    localparam center_offset = center_wr_cols * wr_rows;
+    assign wr_base_addr     = buf_out_index ? (writing_center ? center_offset : third_offset) : 0;
+    assign next_third_base_addr = buf_out_index ? (writing_center ? third_offset : center_offset) : 0; // Used when we're at left or center
+    assign next_wr_base_addr = (~buf_out_index) ? third_offset : 0; // Always gonna be a third cuz used when we're at the right third
     
     //int valid_cnt;
     
@@ -147,15 +151,18 @@ module bit_pixel_rotator_bram #(
                             if (write_col == (wr_cols - 1)) begin
                                 write_col   <= 0;
                                 if (third_index_in == 2'b10) begin
+                                    wr_addr         <= next_wr_base_addr;
                                     if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
                                         // Block matching FSM is waiting for new frames, or its not working on buffer we want next.
                                         buf_out_index   <= !buf_out_index;
                                         image_number    <= image_number + 1;
-                                        wr_addr         <= next_wr_base_addr;
                                     end else begin
                                         // Block matching FSM is working on the buffer we want to write to :(
                                         state           <= ST_STALL;
                                     end
+                                end else begin
+                                    // We're not finishing up the last third so go to the beginning of the next
+                                    wr_addr    <= next_third_base_addr;
                                 end
                             end else begin
                                 write_col   <= write_col + 1;
@@ -173,7 +180,6 @@ module bit_pixel_rotator_bram #(
                         buf_out_index   <= !buf_out_index;
                         image_number    <= image_number + 1;
                         state           <= ST_IDLE;
-                        wr_addr         <= next_wr_base_addr;
                     end
                 end
             endcase
