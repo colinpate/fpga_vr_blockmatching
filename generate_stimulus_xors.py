@@ -78,7 +78,7 @@ array_list = []
 
 for srch_y in range(0, third_height - srch_blk_height, blk_height):
 #for srch_y in range(0, blk_height*2, blk_height):
-    for srch_x in range(0, third_width - srch_blk_width, blk_width):
+    for srch_x in range(0, third_width, blk_width):
         out_count += 1
     #for srch_x in range(0, blk_width, blk_width):
         #srch_blk = array_center[srch_y:srch_y+srch_blk_height,srch_x:srch_x+srch_blk_width]
@@ -95,10 +95,10 @@ dec_factor = 2
 smol_array = np.zeros((0))
 for smol_y in range(0, third_height, dec_factor):
     for smol_x in range(0, third_width, dec_factor):
-        if smol_x < (third_width - srch_blk_width + blk_width):
-            smol_block = array_right[smol_y:smol_y+dec_factor,smol_x:smol_x+dec_factor].copy()
-        else:
-            smol_block = np.zeros((dec_factor, dec_factor))
+        #if smol_x < (third_width - srch_blk_width + blk_width):
+        smol_block = array_right[smol_y:smol_y+dec_factor,smol_x:smol_x+dec_factor].copy()
+        #else:
+        #    smol_block = np.zeros((dec_factor, dec_factor))
         smol_array = np.concatenate((smol_array, smol_block.flatten()))
     
     

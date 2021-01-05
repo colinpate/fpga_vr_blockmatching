@@ -188,27 +188,6 @@ module block_matching_system #(
 		.blk_rd_data        (bit_pix_bram_mod_0_right_rd_readdata)          //               .readdata
 	);
 
-	/*ddr3_pixel_writer_supersimple #(
-		.in_width      (16),
-		.burst_len     (2),
-		.num_pixels    (5824),
-		.start_address (32'b00110110000000000000000000000000)
-	) ddr3_writer_supersimple_0 (
-		.ddr3_burstcount    (ddr3_writer_supersimple_0_avalon_master_burstcount),  //         avalon_master.burstcount
-		.ddr3_waitrequest   (ddr3_writer_supersimple_0_avalon_master_waitrequest), //                      .waitrequest
-		.ddr3_write         (ddr3_writer_supersimple_0_avalon_master_write),       //                      .write
-		.ddr3_write_address (ddr3_writer_supersimple_0_avalon_master_address),     //                      .address
-		.ddr3_write_data    (ddr3_writer_supersimple_0_avalon_master_writedata),   //                      .writedata
-		.pixel              (avalon_st_adapter_out_0_data),                        // avalon_streaming_sink.data
-		.pixel_valid        (avalon_st_adapter_out_0_valid),                       //                      .valid
-		.pixel_ready        (avalon_st_adapter_out_0_ready),                       //                      .ready
-		.ddr3_clk           (ddr3_writer_supersimple_0_ddr3clk_clk),               //               ddr3clk.clk
-		.pclk_reset         (~reset_reset_n),                      //            pclk_reset.reset
-		.ddr3_clk_reset     (ddr3_writer_supersimple_0_ddr3clk_reset_reset),       //         ddr3clk_reset.reset
-		.pclk               (clk_clk),                                             //                  pclk.clk
-		.fifo_level         ()                                                     //     fifo_level_source.data
-	);*/
-
 	hamming_dist_new #(
 		.blk_size    (blk_size),
 		.lut_bits_in (4)

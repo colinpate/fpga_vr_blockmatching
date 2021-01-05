@@ -3,10 +3,6 @@ module xors_to_stream #(
     parameter blk_h = 16,
     parameter blk_size = blk_w * blk_h,
     parameter decimate_factor = 2,
-    parameter filter_radius = 2,
-    parameter num_filters = 10,
-    parameter cd_width = 15,
-    parameter c_width = 9,
     parameter frame_w = 240,
     parameter search_blk_w = 48
     ) (
@@ -27,7 +23,7 @@ module xors_to_stream #(
     localparam max_disparity = search_blk_w - blk_w;
     localparam disparity_bits = $clog2(max_disparity);
     
-    localparam blocks_per_row = (frame_w - search_blk_w) / blk_w;
+    localparam blocks_per_row = frame_w / blk_w;
     localparam frame_wr_addr_w = frame_w / blk_w;
     localparam frame_rd_addr_w = frame_w / decimate_factor;
     localparam bram_num_bits = frame_w * blk_h * 2; // 2 buffers for ping-pong.
@@ -42,52 +38,10 @@ module xors_to_stream #(
     logic                           bram_wren;
     logic [decimate_factor - 1:0]   bram_rd_data;
     
-    // Try definining RAM inline
-    /*altsyncram	altsyncram_component (
-				.address_a (bram_wr_addr),
-				.address_b (bram_rd_addr),
-				.clock0 (clk),
-				.data_a (bram_wr_data),
-				.wren_a (bram_wren),
-				.q_b (bram_rd_data),
-				.aclr0 (1'b0),
-				.aclr1 (1'b0),
-				.addressstall_a (1'b0),
-				.addressstall_b (1'b0),
-				.byteena_a (1'b1),
-				.byteena_b (1'b1),
-				.clock1 (1'b1),
-				.clocken0 (1'b1),
-				.clocken1 (1'b1),
-				.clocken2 (1'b1),
-				.clocken3 (1'b1),
-				.data_b ({8{1'b1}}),
-				.eccstatus (),
-				.q_a (),
-				.rden_a (1'b1),
-				.rden_b (1'b1),
-				.wren_b (1'b0));
-    defparam
-		altsyncram_component.address_aclr_b = "NONE",
-		altsyncram_component.address_reg_b = "CLOCK0",
-		altsyncram_component.clock_enable_input_a = "BYPASS",
-		altsyncram_component.clock_enable_input_b = "BYPASS",
-		altsyncram_component.clock_enable_output_b = "BYPASS",
-		altsyncram_component.intended_device_family = "Cyclone V",
-		altsyncram_component.lpm_type = "altsyncram",
-		altsyncram_component.numwords_a = 1 << bram_wr_addr_w,
-		altsyncram_component.numwords_b = 1 << bram_rd_addr_w,
-		altsyncram_component.operation_mode = "DUAL_PORT",
-		altsyncram_component.outdata_aclr_b = "NONE",
-		altsyncram_component.outdata_reg_b = "UNREGISTERED",
-		altsyncram_component.power_up_uninitialized = "FALSE",
-		altsyncram_component.read_during_write_mode_mixed_ports = "DONT_CARE",
-		altsyncram_component.widthad_a = bram_wr_addr_w,
-		altsyncram_component.widthad_b = bram_rd_addr_w,
-		altsyncram_component.width_a = blk_w,
-		altsyncram_component.width_b = decimate_factor,
-		altsyncram_component.width_byteena_a = 1;*/
-        
+    // We can expect a new 16x16 block every 8*32 = 256 cycles.
+    // It takes us 128 cycles to read out a block.
+    // We read out the blocks after receiving a whole row of them.
+    
     bram_wrapper #(
         .wr_addr_w  (bram_wr_addr_w),
         .rd_addr_w  (bram_rd_addr_w),
@@ -105,8 +59,10 @@ module xors_to_stream #(
     );
     
     logic [disparity_bits - 1:0] min_disparity;
-    logic [disparity_bits - 1:0] disp_out;
-    logic [7:0]                  conf_out;
+    logic [3:0]                  reading_buf_index;
+    logic [3:0]                  writing_buf_index;
+    logic [$clog2(blocks_per_row) - 1:0]    rd_current_blk_col;
+    logic [$clog2(blocks_per_row) - 1:0]    blk_col;
     assign min_disparity = min_coords;
     
     bram_wrapper #(
@@ -120,7 +76,7 @@ module xors_to_stream #(
         .rd_addr    ({reading_buf_index[0], rd_current_blk_col}),
         .wren       (xors_valid),
         .wr_data    ({confidence, min_disparity}),
-        .rd_data    ({conf_out, disp_out})
+        .rd_data    ({conf_out, disp_out[disparity_bits - 1:0]})
     );
         
     // End inline RAM definition
@@ -128,10 +84,8 @@ module xors_to_stream #(
     // Writing logic
     logic [blk_h - 1:0][blk_w - 1:0]    xor_array;
     
-    logic [3:0] writing_buf_index;
     logic [bram_wr_addr_w - 2:0] bram_wr_addr_i;
     
-    logic [$clog2(blocks_per_row) - 1:0]    blk_col;
     logic [$clog2(blk_h) - 1:0] blk_wr_row;
     logic                       state_write_block;
     
@@ -147,12 +101,10 @@ module xors_to_stream #(
     logic [bram_rd_addr_w - 2:0] bram_rd_addr_col;
     
     logic                                   state_read_buf;
-    logic [3:0]                             reading_buf_index;
     logic [$clog2(decimate_factor) - 1:0]   read_small_row;
     logic [$clog2(frame_rd_addr_w) - 1:0]   read_col;
     logic                                   blk_read;
     logic                                   blk_rdv;
-    logic [$clog2(blocks_per_row) - 1:0]    rd_current_blk_col;
     
     assign rd_current_blk_col = read_col >> $clog2(blk_w / decimate_factor); // Get the index of the block we're reading from
     
@@ -161,9 +113,6 @@ module xors_to_stream #(
     assign pix_stream_data = bram_rd_data;
     assign pix_stream_valid = blk_rdv;
     assign bram_rd_addr = {reading_buf_index[0], bram_rd_addr_i};
-    
-    logic [7:0] disp_out;
-    logic [7:0] conf_out;
     
     always @(posedge clk) begin
         if (reset) begin
