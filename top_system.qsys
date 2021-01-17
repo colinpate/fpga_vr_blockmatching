@@ -205,9 +205,9 @@
    kind="ddr3_writer_supersimple"
    version="1.0"
    enabled="1">
-  <parameter name="burst_len" value="17" />
+  <parameter name="burst_len" value="15" />
   <parameter name="in_width" value="16" />
-  <parameter name="num_pixels" value="7888" />
+  <parameter name="num_pixels" value="6960" />
   <parameter name="start_address" value="905969664" />
  </module>
  <module
