@@ -41,6 +41,14 @@
          type = "int";
       }
    }
+   element ddr3_writer_supersimple_1
+   {
+      datum _sortIndex
+      {
+         value = "6";
+         type = "int";
+      }
+   }
    element debug_0
    {
       datum _sortIndex
@@ -55,6 +63,38 @@
       {
          value = "0";
          type = "int";
+      }
+   }
+   element top_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element top_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element top_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element top_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
       }
    }
 }
@@ -119,6 +159,11 @@
    internal="debug_0.ddr3_writer_supersimple_0_avalon_master"
    type="avalon"
    dir="start" />
+ <interface
+   name="filtered_disparity_avalon_master"
+   internal="ddr3_writer_supersimple_1.avalon_master"
+   type="avalon"
+   dir="start" />
  <interface name="pclk" internal="pclk_src.clk_in" type="clock" dir="end" />
  <interface
    name="pclk_reset"
@@ -142,6 +187,8 @@
   <parameter name="blk_h" value="16" />
   <parameter name="blk_w" value="16" />
   <parameter name="center_w" value="304" />
+  <parameter name="decimate_factor" value="2" />
+  <parameter name="output_confidence" value="1" />
   <parameter name="search_blk_h" value="24" />
   <parameter name="search_blk_w" value="48" />
   <parameter name="third_h" value="480" />
@@ -158,10 +205,20 @@
    kind="ddr3_writer_supersimple"
    version="1.0"
    enabled="1">
-  <parameter name="burst_len" value="2" />
+  <parameter name="burst_len" value="17" />
   <parameter name="in_width" value="16" />
-  <parameter name="num_pixels" value="3808" />
+  <parameter name="num_pixels" value="7888" />
   <parameter name="start_address" value="905969664" />
+ </module>
+ <module
+   name="ddr3_writer_supersimple_1"
+   kind="ddr3_writer_supersimple"
+   version="1.0"
+   enabled="1">
+  <parameter name="burst_len" value="8" />
+  <parameter name="in_width" value="8" />
+  <parameter name="num_pixels" value="230400" />
+  <parameter name="start_address" value="939524096" />
  </module>
  <module
    name="debug_0"
@@ -197,6 +254,11 @@
  <connection
    kind="avalon_streaming"
    version="18.1"
+   start="block_matching_system_0.disparity_left_source"
+   end="ddr3_writer_supersimple_1.avalon_streaming_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
    start="block_matching_system_0.mdf_left_streamout"
    end="ddr3_writer_supersimple_0.avalon_streaming_sink" />
  <connection kind="clock" version="18.1" start="pclk_src.clk" end="debug_0.clk" />
@@ -219,12 +281,22 @@
    kind="clock"
    version="18.1"
    start="ddr3_clk_src.clk"
+   end="ddr3_writer_supersimple_1.ddr3clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3_clk_src.clk"
    end="bit_pixel_conversion_system_0.ddr3clk_sink" />
  <connection
    kind="clock"
    version="18.1"
    start="pclk_src.clk"
    end="ddr3_writer_supersimple_0.pclk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_src.clk"
+   end="ddr3_writer_supersimple_1.pclk" />
  <connection
    kind="clock"
    version="18.1"
@@ -288,12 +360,22 @@
    kind="reset"
    version="18.1"
    start="ddr3_clk_src.clk_reset"
+   end="ddr3_writer_supersimple_1.ddr3clk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3_clk_src.clk_reset"
    end="bit_pixel_conversion_system_0.ddr3clk_reset_sink" />
  <connection
    kind="reset"
    version="18.1"
    start="pclk_src.clk_reset"
    end="ddr3_writer_supersimple_0.pclk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_src.clk_reset"
+   end="ddr3_writer_supersimple_1.pclk_reset" />
  <connection
    kind="reset"
    version="18.1"

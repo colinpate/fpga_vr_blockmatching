@@ -11,18 +11,20 @@ module min_dist_finder #(
     input                   clk,
     input                   reset,
     
-    //input [blk_size - 1:0]   xors,
+    input [blk_size - 1:0]   xors,
     input [7:0]              sum,
     input [15:0]             out_coords,
     input [15:0]             blk_index_o,
     input                    sum_valid,
     
-    //output logic [blk_size - 1:0]   min_xors,
+    output logic [blk_size - 1:0]   min_xors,
     output logic [7:0]              min_sum,
     output logic [7:0]              min_sumh,
+    output logic [7:0]              confidence,
+    output logic [15:0]             stream_out,
+    output logic                    stream_out_valid,
     output logic [15:0]             min_out_coords,
     output logic [15:0]             min_blk_index_o,
-    output logic [7:0]              average_sum,
     output logic                    min_sum_valid
     );
     
@@ -38,21 +40,23 @@ module min_dist_finder #(
     */
     
     logic [15 + num_sum_bits:0] avg_sum_i;
-    logic [num_sum_bits - 1:0]    sum_sum;
-    logic [7:0] confidence;
-    logic [1:0][7:0]    last_out_coords;
+    logic [7:0]                 average_sum;
+    logic [num_sum_bits - 1:0]  sum_sum;
+    logic [1:0][7:0]            last_out_coords;
+    logic                       min_sum_sent;
+    logic [15:0]                min_out_coords_i;
     assign last_out_coords[1] = search_blk_h - blk_h - 1; // vertical
     assign last_out_coords[0] = 0;//search_blk_w - blk_w - 1; // horizontal
     assign avg_sum_i = num_sums_inv * sum_sum; // 0pN * 8p0 = 8pN
     assign average_sum = avg_sum_i >> (num_sum_bits + 8);
     assign confidence = average_sum - min_sum;
-    logic min_sum_sent;
-    logic [15:0] min_out_coords_i;
+    assign min_out_coords = min_out_coords_i;
+    assign stream_out_valid = min_sum_valid;
     generate
         if (output_confidence) begin
-            assign min_out_coords = {confidence[7:0], min_out_coords_i[4:0], 3'b000}; // Just send the X coord for now
+            assign stream_out = {confidence[7:0], min_out_coords_i[4:0], 3'b000}; // Just send the X coord for now
         end else begin
-            assign min_out_coords = min_out_coords_i; // Just send the X coord for now
+            assign stream_out = min_out_coords_i; // Just send the X coord for now
         end
     endgenerate
     
@@ -69,7 +73,7 @@ module min_dist_finder #(
                     min_sum_sent    <= 0;
                     min_sumh        <= min_sum;
                     min_sum         <= sum;
-                    //min_xors        <= xors;
+                    min_xors        <= xors;
                     min_out_coords_i<= out_coords;
                     min_blk_index_o <= blk_index_o;
                 end

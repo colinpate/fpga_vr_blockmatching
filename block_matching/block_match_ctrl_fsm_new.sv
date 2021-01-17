@@ -41,7 +41,7 @@ module block_match_ctrl_fsm_new #(
     localparam num_pad_blocks = ((center_w - third_w) / block_width) / 2;
     localparam third_blocks_per_row      = third_w / block_width;
     localparam center_blocks_per_row     = third_blocks_per_row + num_pad_blocks;
-    localparam blocks_per_col            = (third_h - search_blk_h) / block_height;
+    localparam blocks_per_col            = (third_h - (search_blk_h - block_height)) / block_height;
     
     // How much to add to the third addr to get to the next row of blocks
     localparam third_row_addr_offset     = frame_addr_w * block_height;

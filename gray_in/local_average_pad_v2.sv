@@ -1,3 +1,4 @@
+//`default_nettype none
 module local_average_pad_v2 #(
     parameter radius = 8,
     parameter frame_width = 768,

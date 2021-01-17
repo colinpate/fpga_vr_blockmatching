@@ -1271,6 +1271,10 @@
   <parameter name="AUTO_DEVICE" value="5CSEBA6U23I7" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="7" />
+  <parameter name="AUTO_FILTERED_DISPARITY_AVALON_MASTER_ADDRESS_MAP"><![CDATA[<address-map><slave name='hps_0_bridges.f2h_sdram0_data' start='0x0' end='0x100000000' /></address-map>]]></parameter>
+  <parameter
+     name="AUTO_FILTERED_DISPARITY_AVALON_MASTER_ADDRESS_WIDTH"
+     value="AddressWidth = 32" />
   <parameter name="AUTO_GENERATION_ID" value="0" />
   <parameter name="AUTO_PCLK_CLOCK_DOMAIN" value="1" />
   <parameter name="AUTO_PCLK_CLOCK_RATE" value="80000000" />
@@ -1326,6 +1330,15 @@
    kind="avalon"
    version="18.1"
    start="system_0.debug_0_ddr3_writer_supersimple_0_avalon_master"
+   end="hps_0.f2h_sdram0_data">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="system_0.filtered_disparity_avalon_master"
    end="hps_0.f2h_sdram0_data">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />

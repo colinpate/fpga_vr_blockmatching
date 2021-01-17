@@ -27,10 +27,11 @@ module pixel_processor #(
     logic [$clog2(dec_factor) - 1:0]    shift_counter;
     logic                   conf_result_valid;
     logic [7:0]             conf_result_reg;
+    logic [7:0]             conf_reg;
     logic [disp_bits - 1:0] disp_reg;
     
     // Stage 1 of the pipeline
-    assign conf_result = pop_count_result * ((256 / (dec_factor * dec_factor)) - 1);
+    assign conf_result = pop_count_result * ((conf_reg >> $clog2(dec_factor * dec_factor)) - 1);
     assign conf_result_valid = disp_conf_valid && (shift_counter == (dec_factor - 1));
     
     // Stage 2 of the pipeline
@@ -43,18 +44,23 @@ module pixel_processor #(
             conf_result_reg <= 0;
             out_valid       <= 0;
             disp_reg        <= 0;
+            conf_reg        <= 0;
         end else begin
-            out_valid       <= conf_result_valid;
-            conf_result_reg <= conf_result;
+            // Pipeline stage 1
             disp_reg        <= disp_in;
+            conf_reg        <= conf_in;
             if (disp_conf_valid) begin
-                pixels_in_sreg  <= {pixels_in_sreg[dec_factor - 2:0], pixels_in};
+                pixels_in_sreg  <= {pixels_in_sreg[dec_factor - 2:0], (~pixels_in)};
                 if (shift_counter == (dec_factor - 1)) begin
                     shift_counter   <= 0;
                 end else begin
                     shift_counter   <= shift_counter + 1;
                 end
             end
+            
+            // Pipeline stage 2
+            conf_result_reg <= conf_result;
+            out_valid       <= conf_result_valid;
         end
     end
 endmodule

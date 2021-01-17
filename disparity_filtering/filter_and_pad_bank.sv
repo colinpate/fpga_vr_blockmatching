@@ -1,3 +1,4 @@
+//`default_nettype none
 module filter_and_pad_bank #(
     parameter disp_bits = 5,
     parameter line_len = 120,
@@ -99,7 +100,7 @@ module filter_and_pad_bank #(
     
     genvar i;
     generate
-        for (i = 1; i < num_filters; i += 1) begin
+        for (i = 1; i < num_filters; i += 1) begin : generate_connections
             assign cd_filter_inputs[i] = cd_filter_outputs[i - 1];
             assign c_filter_inputs[i] = c_filter_outputs[i - 1];
             assign cd_f_in_valid[i] = cd_f_out_valid[i - 1];
