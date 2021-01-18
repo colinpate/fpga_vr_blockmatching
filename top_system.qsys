@@ -97,6 +97,14 @@
          type = "String";
       }
    }
+   element top_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
 }
 ]]></parameter>
  <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
@@ -205,9 +213,9 @@
    kind="ddr3_writer_supersimple"
    version="1.0"
    enabled="1">
-  <parameter name="burst_len" value="15" />
+  <parameter name="burst_len" value="2" />
   <parameter name="in_width" value="16" />
-  <parameter name="num_pixels" value="6960" />
+  <parameter name="num_pixels" value="13920" />
   <parameter name="start_address" value="905969664" />
  </module>
  <module
@@ -216,7 +224,7 @@
    version="1.0"
    enabled="1">
   <parameter name="burst_len" value="8" />
-  <parameter name="in_width" value="8" />
+  <parameter name="in_width" value="16" />
   <parameter name="num_pixels" value="230400" />
   <parameter name="start_address" value="939524096" />
  </module>

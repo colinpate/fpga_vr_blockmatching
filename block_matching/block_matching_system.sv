@@ -37,9 +37,9 @@ module block_matching_system #(
         output wire         min_dist_finder_left_avalon_streaming_source_valid, // min_dist_finder_left:min_sum_valid -> avalon_st_adapter:in_0_valid
         output wire  [15:0] min_dist_finder_left_avalon_streaming_source_data,  // min_dist_finder_left:min_out_coords -> avalon_st_adapter:in_0_data
         
-        output wire [7:0]   disparity_out_left,
+        output wire [15:0]  disparity_out_left,
         output wire         disparity_valid_left,
-        output wire [7:0]   disparity_out_right,
+        output wire [15:0]  disparity_out_right,
         output wire         disparity_valid_right
 	);
 

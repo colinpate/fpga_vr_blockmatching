@@ -30,9 +30,11 @@ module bram_reader_writer #(
     logic [$clog2(height) - 1:0]    rd_row;
     logic                           st_rd_running;
     logic                           rd_data_valid;
+    logic [1:0]                     rd_cntr;
     logic                           rd_ena;
     logic [data_width - 1:0]        bram_readdata;
     
+    assign rd_ena       = (rd_cntr == 2'b11);
     assign out_valid    = rd_data_valid;
     assign wr_address_i = wr_image_index[0] ? wr_address + frame_size : wr_address;
     assign rd_address_i = rd_image_index[0] ? rd_address + frame_size : rd_address;
@@ -64,7 +66,7 @@ module bram_reader_writer #(
             wr_image_index  <= 0;
             rd_image_index  <= 0;
             rd_data_valid   <= 0;
-            rd_ena          <= 0;
+            rd_cntr         <= 0;
         end else begin
             rd_data_valid   <= st_rd_running && rd_ena;
         
@@ -79,7 +81,6 @@ module bram_reader_writer #(
             
             if (st_rd_running) begin
                 if (rd_ena) begin
-                    rd_ena  <= 0;
                     if (rd_address == (frame_size - 1)) begin
                         st_rd_running   <= 0;
                         rd_image_index  <= rd_image_index + 1;
@@ -93,13 +94,14 @@ module bram_reader_writer #(
                             rd_row      <= rd_row + 1;
                         end
                     end
+                    rd_cntr <= 0;
                 end else begin
-                    rd_ena  <= 1;
+                    rd_cntr <= rd_cntr + 1;
                 end
             end else begin
                 if (rd_image_index != wr_image_index) begin
                     st_rd_running   <= 1;
-                    rd_ena          <= 1;
+                    rd_cntr         <= 0;
                     rd_address      <= 0;
                     rd_col          <= 0;
                     rd_row          <= 0;

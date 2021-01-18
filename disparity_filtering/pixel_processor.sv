@@ -48,7 +48,7 @@ module pixel_processor #(
         end else begin
             // Pipeline stage 1
             disp_reg        <= disp_in;
-            conf_reg        <= conf_in;
+            conf_reg        <= ((conf_in > 127) ? conf_in - 128 : 0) << 1;
             if (disp_conf_valid) begin
                 pixels_in_sreg  <= {pixels_in_sreg[dec_factor - 2:0], (~pixels_in)};
                 if (shift_counter == (dec_factor - 1)) begin

@@ -49,7 +49,7 @@ module ddr3_pixel_writer_supersimple
     logic           fifo_rdfull;
     logic [255:0]   fifo_data;
     logic           fifo_aclr;
-    logic     [5:0] fifo_wrusedw;
+    logic     [7:0] fifo_wrusedw;
     
     logic [burst_log - 1:0] burst_index;
     
@@ -68,7 +68,7 @@ module ddr3_pixel_writer_supersimple
         .wrusedw    ( fifo_wrusedw )
     );
     
-    assign pixel_ready = (~fifo_wrfull) && !(fifo_wrusedw == 6'h3F);
+    assign pixel_ready = (~fifo_wrfull) && !(fifo_wrusedw == 8'hFF);
     
     assign ddr3_write_data = fifo_data;
     assign fifo_read    = ((state == ST_FIRST_READ) || ((fifo_read_ena) && (ddr3_write) && (!ddr3_waitrequest)));

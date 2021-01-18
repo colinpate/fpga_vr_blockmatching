@@ -1,6 +1,7 @@
 //`default_nettype none
 module conf_disp_divide #(
-    parameter disp_bits = 5
+    parameter disp_bits = 5,
+    parameter conf_threshold = 5
     ) (
         input clk,
         input reset,
@@ -8,6 +9,7 @@ module conf_disp_divide #(
         input [7 + disp_bits:0]     in_conf_disp,
         input                       in_valid,
         output [disp_bits - 1:0]    out_disp,
+        output [7:0]                out_conf,
         output                      out_valid
     );
     
@@ -21,23 +23,29 @@ module conf_disp_divide #(
     
     // pipeline stage 2
     logic in_valid_d1;
+    logic [7:0]             conf_in_reg_d1;
     
     // stage 3
     logic in_valid_d2;
+    logic [7:0]             conf_in_reg_d2;
     
     // stage 3
     logic in_valid_d3;
+    logic [7:0]             conf_in_reg_d3;
     
     // stage 3
     logic in_valid_d4;
+    logic [7:0]             conf_in_reg_d4;
     
     // stage 4
     logic valid_reg;
+    logic [7:0]             conf_in_reg_d5;
     logic [7 + disp_bits:0] result_reg;
     
     
     assign out_disp     = (result_reg >= (1 << disp_bits)) ? (1 << disp_bits) - 1 : result_reg;
     assign out_valid    = valid_reg;
+    assign out_conf     = conf_in_reg_d5;
     
     always @(posedge clk) begin
         if (reset) begin
@@ -57,13 +65,18 @@ module conf_disp_divide #(
             conf_disp_in_reg    <= in_conf_disp;
             conf_in_reg         <= in_conf + 1;
             
-            in_valid_d1 <= valid_in_reg;
-            in_valid_d2 <= in_valid_d1;
-            in_valid_d3 <= in_valid_d2;
-            in_valid_d4 <= in_valid_d3;
+            in_valid_d1     <= valid_in_reg;
+            conf_in_reg_d1  <= conf_in_reg;
+            in_valid_d2     <= in_valid_d1;
+            conf_in_reg_d2  <= conf_in_reg_d1;
+            in_valid_d3     <= in_valid_d2;
+            conf_in_reg_d3  <= conf_in_reg_d2;
+            in_valid_d4     <= in_valid_d3;
+            conf_in_reg_d4  <= conf_in_reg_d3;
             
-            valid_reg   <= in_valid_d4;
-            result_reg  <= result;
+            conf_in_reg_d5  <= conf_in_reg_d4;
+            valid_reg       <= in_valid_d4;
+            result_reg      <= (conf_in_reg_d4 > conf_threshold) ? result : 0;
         end
     end
     
