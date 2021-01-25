@@ -14,10 +14,10 @@ module xors_to_stream #(
     input [15:0]            min_coords,
     input                   xors_valid,
     
-    output [1:0]            pix_stream_data,
-    output [7:0]            conf_out,
-    output [7:0]            disp_out,
-    output                  pix_stream_valid
+    output [decimate_factor - 1:0]  pix_stream_data,
+    output [7:0]                    conf_out,
+    output [7:0]                    disp_out,
+    output                          pix_stream_valid
     );
     
     localparam max_disparity = search_blk_w - blk_w;

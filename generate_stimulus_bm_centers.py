@@ -55,6 +55,7 @@ def find_best_coords(block, srch_block):
                 #print(f"src {srch_blk_area[0]}")
                 #print(f"blk {block[0]}")
             diff_area = np.abs(srch_blk_area - block)
+            diff_area[15,15] = 0
             diff = np.sum(diff_area)
             #if (x == 47) and (y % 2):
                 #print(f"{x} y {y} diff {diff} src {srch_blk_area[0]}")
@@ -73,7 +74,7 @@ min_r_file = open("../../modelsim/compare_out_r.bin", "wb")
 
 out_count = 0
 
-rows = math.floor((third_height - srch_blk_height) / blk_height)
+rows = math.floor((third_height - (srch_blk_height - blk_height)) / blk_height)
 
 for srch_y in range(0, rows * blk_height, blk_height):
     print(out_count)

@@ -31,7 +31,7 @@ module pixel_processor #(
     logic [disp_bits - 1:0] disp_reg;
     
     // Stage 1 of the pipeline
-    assign conf_result = pop_count_result * ((conf_reg >> $clog2(dec_factor * dec_factor)) - 1);
+    assign conf_result = pop_count_result * (conf_reg >> $clog2(dec_factor * dec_factor));
     assign conf_result_valid = disp_conf_valid && (shift_counter == (dec_factor - 1));
     
     // Stage 2 of the pipeline
@@ -48,7 +48,7 @@ module pixel_processor #(
         end else begin
             // Pipeline stage 1
             disp_reg        <= disp_in;
-            conf_reg        <= ((conf_in > 127) ? conf_in - 128 : 0) << 1;
+            conf_reg        <= (conf_in > 125) ? 252 : (conf_in << 1); // 252/4 = 63 (don't want to hit 64 or we could hit overflow with the conf_result operator)
             if (disp_conf_valid) begin
                 pixels_in_sreg  <= {pixels_in_sreg[dec_factor - 2:0], (~pixels_in)};
                 if (shift_counter == (dec_factor - 1)) begin

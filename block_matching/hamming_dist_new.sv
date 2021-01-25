@@ -35,7 +35,7 @@ module hamming_dist_new #(
     logic [blk_sz_log - 1:0]    sum_i;
     
     pop_count pop_count_inst[num_luts - 1:0] (
-        .in(xor_sreg),
+        .in({1'b0, xor_sreg[blk_size - 2:0]}), // Cut one bit off so the diff can't be the full block size.
         .out(lut_outs)
         );
     

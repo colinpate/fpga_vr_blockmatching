@@ -30,7 +30,8 @@ module min_dist_finder #(
     
     localparam num_sums = (search_blk_h - blk_h) * (search_blk_w - blk_w);
     localparam num_sum_bits = $clog2(num_sums);
-    localparam num_sums_inv = (1 << (num_sum_bits + 8)) / num_sums; // 0p8 fixed-point
+    localparam num_sums_inv = (1 << (num_sum_bits + 8)) / num_sums; // 0pN fixed-point
+    localparam blk_bits = $clog2(blk_size);
     /* num_sums is 192
     num_sum_bits will be 8
     inv will be 1 << 16 / 192 = 341
@@ -41,14 +42,14 @@ module min_dist_finder #(
     
     logic [15 + num_sum_bits:0] avg_sum_i;
     logic [7:0]                 average_sum;
-    logic [num_sum_bits - 1:0]  sum_sum;
+    logic [num_sum_bits + blk_bits - 1:0]  sum_sum;
     logic [1:0][7:0]            last_out_coords;
     logic                       min_sum_sent;
     logic [15:0]                min_out_coords_i;
     assign last_out_coords[1] = search_blk_h - blk_h - 1; // vertical
     assign last_out_coords[0] = 0;//search_blk_w - blk_w - 1; // horizontal
-    assign avg_sum_i = num_sums_inv * sum_sum; // 0pN * 8p0 = 8pN
-    assign average_sum = avg_sum_i >> (num_sum_bits + 8);
+    assign avg_sum_i = num_sums_inv * sum_sum; // 0pN * Yp0 = YpN
+    assign average_sum = avg_sum_i >> (num_sum_bits + 8); // Yp0
     assign confidence = average_sum - min_sum;
     assign min_out_coords = min_out_coords_i;
     assign stream_out_valid = min_sum_valid;
