@@ -26,9 +26,12 @@ module xors_to_stream #(
     localparam blocks_per_row = frame_w / blk_w;
     localparam frame_wr_addr_w = frame_w / blk_w;
     localparam frame_rd_addr_w = frame_w / decimate_factor;
-    localparam bram_num_bits = frame_w * blk_h * 2; // 2 buffers for ping-pong.
+    localparam frame_h = blk_h * ((decimate_factor == 3) ? 3 : 1);
+    localparam bram_num_bits = frame_w * frame_h * 2; // 2 buffers for ping-pong.
     localparam bram_wr_num_words = bram_num_bits / blk_w;
     localparam bram_rd_num_words = bram_num_bits / decimate_factor;
+    localparam bram_wr_frame_size = frame_wr_addr_w * frame_h;
+    localparam bram_rd_frame_size = frame_rd_addr_w * frame_h;
     localparam bram_wr_addr_w = $clog2(bram_wr_num_words);
     localparam bram_rd_addr_w = $clog2(bram_rd_num_words);
     
@@ -47,8 +50,8 @@ module xors_to_stream #(
         .rd_addr_w  (bram_rd_addr_w),
         .wr_data_w  (blk_w),
         .rd_data_w  (decimate_factor),
-        .wr_word_depth  (1 << bram_wr_addr_w),
-        .rd_word_depth  (1 << bram_rd_addr_w)
+        .wr_word_depth  (bram_wr_num_words),
+        .rd_word_depth  (bram_rd_num_words)
     ) xor_bram (
         .clk        (clk),
         .wr_addr    (bram_wr_addr),
@@ -64,18 +67,21 @@ module xors_to_stream #(
     logic [$clog2(blocks_per_row) - 1:0]    rd_current_blk_col;
     logic [$clog2(blocks_per_row) - 1:0]    blk_col;
     assign min_disparity = min_coords;
+    logic [$clog2(frame_rd_addr_w) - 1:0]   read_col;
     
     bram_wrapper #(
         .wr_addr_w  ($clog2(blocks_per_row) + 1), // Plus 1 for ping-pong buffering
-        .rd_addr_w  ($clog2(blocks_per_row) + 1),
-        .wr_data_w  (disparity_bits + 8), // 8 bit confidence
-        .rd_data_w  (disparity_bits + 8)
+        .rd_addr_w  ($clog2(frame_rd_addr_w) + 1),
+        .wr_data_w  ((disparity_bits + 8) * blk_w), // 8 bit confidence
+        .rd_data_w  ((disparity_bits + 8) * decimate_factor),
+        .wr_word_depth  (blocks_per_row * 2),
+        .rd_word_depth  (blocks_per_row * 2 * blk_w / decimate_factor)
     ) conf_dist_ram (
         .clk        (clk),
         .wr_addr    ({writing_buf_index[0], blk_col}),
-        .rd_addr    ({reading_buf_index[0], rd_current_blk_col}),
+        .rd_addr    ({reading_buf_index[0], read_col}),
         .wren       (xors_valid),
-        .wr_data    ({confidence, min_disparity}),
+        .wr_data    ({blk_w{confidence, min_disparity}}),
         .rd_data    ({conf_out, disp_out[disparity_bits - 1:0]})
     );
         
@@ -91,7 +97,7 @@ module xors_to_stream #(
     
     assign bram_wr_data = xor_array[blk_wr_row];
     assign bram_wren = (state_write_block == 1'b1);
-    assign bram_wr_addr = {writing_buf_index[0], bram_wr_addr_i};
+    assign bram_wr_addr = writing_buf_index[0] ? (bram_wr_frame_size + bram_wr_addr_i) : bram_wr_addr_i;
     logic [1:0][blocks_per_row - 1:0][disparity_bits - 1:0]   disp_array;
     logic [1:0][blocks_per_row - 1:0][7:0]   conf_array;
     
@@ -102,7 +108,6 @@ module xors_to_stream #(
     
     logic                                   state_read_buf;
     logic [$clog2(decimate_factor) - 1:0]   read_small_row;
-    logic [$clog2(frame_rd_addr_w) - 1:0]   read_col;
     logic                                   blk_read;
     logic                                   blk_rdv;
     
@@ -112,7 +117,7 @@ module xors_to_stream #(
     
     assign pix_stream_data = bram_rd_data;
     assign pix_stream_valid = blk_rdv;
-    assign bram_rd_addr = {reading_buf_index[0], bram_rd_addr_i};
+    assign bram_rd_addr = reading_buf_index[0] ? (bram_rd_frame_size + bram_rd_addr_i) : bram_rd_addr_i;
     
     always @(posedge clk) begin
         if (reset) begin
@@ -136,8 +141,6 @@ module xors_to_stream #(
                         xor_array           <= xors_in;
                         state_write_block   <= 1'b1;
                         blk_wr_row          <= 0;
-                        //disp_array[writing_buf_index[0]][blk_col]   <= min_disparity;
-                        //conf_array[writing_buf_index[0]][blk_col]   <= confidence;
                     end
                 end
                 
@@ -177,12 +180,12 @@ module xors_to_stream #(
                         read_small_row  <= 0;
                         if (read_col == (frame_rd_addr_w - 1)) begin // We're at the end of the row
                             read_col    <= 0;
-                            if (bram_rd_addr_i == ((frame_rd_addr_w * blk_h) - 1)) begin // We're at the end of the buffer
+                            if (bram_rd_addr_i == ((frame_rd_addr_w * frame_h) - 1)) begin // We're at the end of the buffer
                                 state_read_buf      <= 1'b0;
                                 reading_buf_index   <= reading_buf_index + 1;
                             end else begin // We're just at the end of the row
                                 bram_rd_addr_i      <= bram_rd_addr_i + 1; // Go to beginning of next row
-                                bram_rd_addr_col    <= bram_rd_addr_col + frame_rd_addr_w + 1; // Go to beginning 2 rows down
+                                bram_rd_addr_col    <= bram_rd_addr_col + (frame_rd_addr_w * (decimate_factor - 1)) + 1; // Go to beginning 2 rows down
                             end
                         end else begin // We're somewhere in the middle of the row
                             read_col            <= read_col + 1;

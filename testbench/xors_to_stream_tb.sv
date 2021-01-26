@@ -6,22 +6,25 @@ module xors_to_stream_tb;
     logic reset;
     logic wr_enable;
     
+    parameter blk_w = 16;
+    
     parameter third_width = 240;
     parameter third_height = 480;
-    parameter third_end_address = third_width * third_height / 16; // 16 is wr port width
+    parameter third_end_address = third_width * third_height / blk_w; // 16 is wr port width
  
     parameter decimate_factor = 2;
+    parameter result_per_read = 24 / decimate_factor;
     
     always #6250ps clk50 = ~clk50;
     always #10000ps clk48 = ~clk48;
     
     int File, c;
-    logic unsigned [15:0] pixel, fmems [$:third_end_address*3];
-    logic [third_end_address*3 - 1:0][15:0] img_data;
+    logic unsigned [15:0] pixel, fmems [$:third_end_address];
+    logic [third_end_address - 1:0][15:0] img_data;
     
     int File_out;
-    logic unsigned [7:0] pixel_out, fmems_out [$:third_end_address*3];
-    logic [third_end_address*3*8 - 1:0][decimate_factor  - 1:0] result_data;
+    logic unsigned [23:0] pixel_out, fmems_out [$:third_end_address];
+    logic [third_end_address*blk_w/decimate_factor - 1:0][decimate_factor  - 1:0] result_data;
     initial begin
         File = $fopen("stimulus_in_xor.bin", "rb");
         if (!File)
@@ -33,7 +36,7 @@ module xors_to_stream_tb;
             end
             $fclose(File);
         end
-        for (int i = 0; i < third_end_address*3; i++) begin
+        for (int i = 0; i < third_end_address; i++) begin
             img_data[i] = fmems[i];
         end
         
@@ -42,13 +45,13 @@ module xors_to_stream_tb;
             $display("Could not open \"result.dat\"");
         else begin
             while (!$feof(File_out)) begin
-                c = $fscanf(File_out, "%c", pixel_out);
+                c = $fscanf(File_out, "%c%c%c", pixel_out[7:0], pixel_out[15:8], pixel_out[23:16]);
                 fmems_out.push_back(pixel_out);
             end
             $fclose(File_out);
         end
-        for (int i = 0; i < third_end_address*3; i++) begin
-            result_data[i*4+:4] = fmems_out[i];
+        for (int i = 0; i < third_end_address; i++) begin
+            result_data[i*result_per_read+:result_per_read] = fmems_out[i];
         end
     
         clk50 = 0;
@@ -65,7 +68,6 @@ module xors_to_stream_tb;
     end
     
     parameter blk_h = 16;
-    parameter blk_w = 16;
  
     logic [decimate_factor - 1:0] pix_stream_data;
     logic pix_stream_valid;
@@ -96,8 +98,8 @@ module xors_to_stream_tb;
             
             if (pix_stream_valid) begin
                 if (result_data[out_counter] != pix_stream_data) begin
-                    //$error("Bad expected %01x got %01x", result_data[out_counter], pix_stream_data);
-                    $display("Erro expected %01x got %01x", result_data[out_counter], pix_stream_data);
+                    $error("Bad expected %01x got %01x", result_data[out_counter], pix_stream_data);
+                    //$display("Erro expected %01x got %01x", result_data[out_counter], pix_stream_data);
                 end else begin
                     $display("Good expected %01x got %01x", result_data[out_counter], pix_stream_data);
                 end
@@ -110,7 +112,8 @@ module xors_to_stream_tb;
     logic [7:0] disp_data;
     
     xors_to_stream #(
-        .blk_w  (16)
+        .blk_w              (16),
+        .decimate_factor    (decimate_factor)
     ) x2s (
         .clk    (clk50),
         .reset  (~reset),

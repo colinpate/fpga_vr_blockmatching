@@ -29,7 +29,7 @@ array_center = array_center.astype(np.int8)
 #print(array_center[0,24:32])
 
 def array_to_file(these_arrays, outname="stimulus_in_xor.bin"):
-    with open("../../modelsim/" + outname, "wb") as fileout:
+    with open("C:/360_cam_proj/modelsim/" + outname, "wb") as fileout:
         for this_array in these_arrays:
             array_index = 0
             while array_index < len(this_array.flatten()):
