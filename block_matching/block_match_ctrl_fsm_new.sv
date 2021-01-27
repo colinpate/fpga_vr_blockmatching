@@ -41,14 +41,16 @@ module block_match_ctrl_fsm_new #(
     localparam num_pad_blocks = ((center_w - third_w) / block_width) / 2;
     localparam third_blocks_per_row      = third_w / block_width;
     localparam center_blocks_per_row     = third_blocks_per_row + num_pad_blocks;
-    localparam blocks_per_col            = (third_h - (search_blk_h - block_height)) / block_height;
+    //localparam blocks_per_col            = (third_h - (search_blk_h - block_height)) / block_height;
+    localparam blocks_per_col            = third_h / block_height;
     
     // How much to add to the third addr to get to the next row of blocks
     localparam third_row_addr_offset     = frame_addr_w * block_height;
     // How much to add to the center addr to get to the next row of blocks
     localparam center_row_addr_offset    = center_addr_w * block_height;
     
-    localparam initial_l_blk_address   = frame_addr_w * ((search_blk_h - block_height) / 2);
+    localparam initial_search_address   = -1 * center_addr_w * ((search_blk_h - block_height) / 2);
+    localparam initial_l_blk_address    = 0; //frame_addr_w * ((search_blk_h - block_height) / 2);
     localparam right_blk_offset         = srch_addr_w - blk_addr_w;
     
     typedef enum {ST_IDLE, ST_WAITBM, ST_STARTBM} statetype;
@@ -98,10 +100,10 @@ module block_match_ctrl_fsm_new #(
                 ST_IDLE: begin
                     if ((img_number_in != img_number) && (bm_done)) begin
                         state           <= ST_STARTBM;
-                        srch_row_addr   <= center_row_addr_offset + srch_buf_offset;
-                        srch_addr       <= srch_buf_offset;
-                        l_blk_addr      <= initial_l_blk_address + blk_buf_offset;
+                        srch_row_addr   <= initial_search_address + center_row_addr_offset + srch_buf_offset;
+                        srch_addr       <= initial_search_address + srch_buf_offset;
                         l_blk_row_addr  <= initial_l_blk_address + third_row_addr_offset + blk_buf_offset;
+                        l_blk_addr      <= initial_l_blk_address + blk_buf_offset;
                         blk_col         <= 0;
                         blk_row         <= 0;
                     end

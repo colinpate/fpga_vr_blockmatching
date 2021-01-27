@@ -31,7 +31,7 @@ print(array_center[0,16:24])
 print(array_center[0,24:32])
 
 def array_to_file(these_arrays):
-    with open("../../modelsim/stimulus_in.bin", "wb") as fileout:
+    with open("../../../modelsim/stimulus_in.bin", "wb") as fileout:
         for this_array in these_arrays:
             array_index = 0
             while array_index < len(this_array.flatten()):
@@ -69,20 +69,21 @@ def find_best_coords(block, srch_block):
         #break
     return min_diff, min_diff_x, min_diff_y, msb
 
-min_l_file = open("../../modelsim/compare_out_l.bin", "wb")
-min_r_file = open("../../modelsim/compare_out_r.bin", "wb")
+min_l_file = open("../../../modelsim/compare_out_l.bin", "wb")
+min_r_file = open("../../../modelsim/compare_out_r.bin", "wb")
 
 out_count = 0
 
-rows = math.floor((third_height - (srch_blk_height - blk_height)) / blk_height)
+rows = int(third_height  / blk_height)
 
 for srch_y in range(0, rows * blk_height, blk_height):
     print(out_count)
 #for srch_y in range(0, blk_height*2, blk_height):
     for srch_x in range(0, center_width - srch_blk_width + blk_width, blk_width):
     #for srch_x in range(0, blk_width, blk_width):
-        srch_blk = array_center[srch_y:srch_y+srch_blk_height,srch_x:srch_x+srch_blk_width]
-        y_coord = int(srch_y + (srch_blk_height - blk_height) / 2)
+        y_i = min(max(srch_y - 4, 0), third_height-srch_blk_height)
+        srch_blk = array_center[y_i:y_i+srch_blk_height,srch_x:srch_x+srch_blk_width]
+        y_coord = int(y_i + (srch_blk_height - blk_height) / 2)
         #print(left_block.shape)
         
         l_blk_coord = srch_x

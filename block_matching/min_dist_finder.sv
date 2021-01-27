@@ -5,7 +5,8 @@ module min_dist_finder #(
     parameter search_blk_h = 16,
     parameter blk_size = blk_h * blk_w,
     parameter blk_sz_log = $clog2(blk_size),
-    parameter output_confidence = 0
+    parameter output_confidence = 0,
+    parameter third_h = 480
     )
     (
     input                   clk,
@@ -46,6 +47,19 @@ module min_dist_finder #(
     logic [1:0][7:0]            last_out_coords;
     logic                       min_sum_sent;
     logic [15:0]                min_out_coords_i;
+    logic cropped_hamming_dist_valid;
+    
+    block_cropper_vertical #( // make sure we're not in the weird region at the top or bottom of the frame
+        .blk_h      (blk_h),
+        .third_h    (third_h),
+        .srch_blk_h (search_blk_h)
+    ) bcv (
+        .blk_index_in   (blk_index_o),
+        .coords_in      (out_coords),
+        .blk_in_valid   (sum_valid),
+        .blk_out_valid  (cropped_hamming_dist_valid)
+    );
+    
     assign last_out_coords[1] = search_blk_h - blk_h - 1; // vertical
     assign last_out_coords[0] = 0;//search_blk_w - blk_w - 1; // horizontal
     assign avg_sum_i = num_sums_inv * sum_sum; // 0pN * Yp0 = YpN
@@ -70,10 +84,10 @@ module min_dist_finder #(
             min_out_coords_i<= 0;
         end else begin
             if (sum_valid) begin
-                if ((min_sum_sent) || (sum < min_sum)) begin
+                if ((min_sum_sent) || ((sum < min_sum) && cropped_hamming_dist_valid)) begin
                     min_sum_sent    <= 0;
                     min_sumh        <= min_sum;
-                    min_sum         <= sum;
+                    min_sum         <= cropped_hamming_dist_valid ? sum : (blk_size - 1); // Do max possible sum if outside valid area.
                     min_xors        <= xors;
                     min_out_coords_i<= out_coords;
                     min_blk_index_o <= blk_index_o;

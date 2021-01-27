@@ -18,8 +18,14 @@ module ddr3_reader_fsm #(
     
     output logic [28:0] read_addr_data,
     output logic        read_addr_valid,
-    input               read_addr_ready
+    input               read_addr_ready,
+    
+    output logic [28:0] read_addr_data_b,
+    output logic        read_addr_valid_b
     );
+    
+    // read_addr_valid_b is a single-cycle pulse reg
+    assign read_addr_data_b = read_addr_data;
     
     typedef enum {ST_IDLE, ST_ADD1, ST_ADD2, ST_CHOOSE_NEXT} statetype;
     statetype state;
@@ -58,10 +64,13 @@ module ddr3_reader_fsm #(
     
     always @(posedge clk) begin
         if (reset) begin
-            cam_ptr_ready   <= 0;
-            state           <= ST_IDLE;
-            frame_cntr_reg  <= 0;
+            cam_ptr_ready       <= 0;
+            state               <= ST_IDLE;
+            frame_cntr_reg      <= 0;
+            read_addr_valid_b   <= 0;
         end else begin
+            read_addr_valid_b   <= 0;
+            
             case (state)
                 ST_IDLE: begin
                     if ((cam_1_ptr_data != frame_cntr_reg) || (test_mode == 1)) begin
@@ -89,8 +98,9 @@ module ddr3_reader_fsm #(
                 end
                 
                 ST_ADD2: begin
-                    out_addr    <= out_addr + third_sizes[third_index];
-                    state       <= ST_CHOOSE_NEXT;
+                    out_addr            <= out_addr + third_sizes[third_index];
+                    read_addr_valid_b   <= 1; // Pulse for 1 cycle
+                    state               <= ST_CHOOSE_NEXT;
                 end
                 
                 ST_CHOOSE_NEXT: begin

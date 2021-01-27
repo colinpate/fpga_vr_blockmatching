@@ -37,7 +37,10 @@ module bit_pixel_conversion_system #(
 		input  wire         ddr3clk_clk,                                           //                                 ddr3clk.clk
 		input  wire         ddr3clk_reset_reset_n,                                 //                           ddr3clk_reset.reset_n
 		input  wire         pclk_clk,                                              //                                    pclk.clk
-		input  wire         pclk_reset_reset_n                                     //                              pclk_reset.reset_n
+		input  wire         pclk_reset_reset_n,                                    //                              pclk_reset.reset_n
+        
+        output wire [28:0]  read_addr_data_out,
+        output wire         read_addr_valid_out
 	);
 
 	wire          gray_vertical_filter_bank_0_avalon_streaming_source_valid; // gray_vertical_filter_bank_0:bit_pixels_valid -> bram_writer_0:bit_pix_valid
@@ -93,7 +96,11 @@ module bit_pixel_conversion_system #(
 		.cam_1_start     (ddr3_reader_fsm_0_cam_1_start_start_addr), //    cam_1_start.start_addr
 		.read_addr_ready (ddr3_reader_fsm_0_read_addr_src_ready),    //  read_addr_src.ready
 		.read_addr_data  (ddr3_reader_fsm_0_read_addr_src_data),     //               .data
-		.read_addr_valid (ddr3_reader_fsm_0_read_addr_src_valid)     //               .valid
+		.read_addr_valid (ddr3_reader_fsm_0_read_addr_src_valid),    //               .valid
+        
+        // output to depth filtering system
+		.read_addr_data_b  (read_addr_data_out),     //               .data
+		.read_addr_valid_b (read_addr_valid_out)     //               .valid
 	);
 
 	ddr3_reader_grayfilter_short #(
