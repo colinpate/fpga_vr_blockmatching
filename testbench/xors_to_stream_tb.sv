@@ -12,7 +12,7 @@ module xors_to_stream_tb;
     parameter third_height = 480;
     parameter third_end_address = third_width * third_height / blk_w; // 16 is wr port width
  
-    parameter decimate_factor = 2;
+    parameter decimate_factor = 3;
     parameter result_per_read = 24 / decimate_factor;
     
     always #6250ps clk50 = ~clk50;

@@ -48,7 +48,7 @@ out_count = 0
 
 array_list = []
 
-for srch_y in range(0, third_height - srch_blk_height, blk_height):
+for srch_y in range(0, third_height, blk_height):
     for srch_x in range(0, third_width, blk_width):
         out_count += 1
         y_coord = int(srch_y)
@@ -57,7 +57,7 @@ for srch_y in range(0, third_height - srch_blk_height, blk_height):
         array_list.append(right_block)
         
         
-dec_factor = 2
+dec_factor = 3
 smol_array = np.zeros((0))
 for smol_y in range(0, third_height, dec_factor):
     for smol_x in range(0, third_width, dec_factor):
