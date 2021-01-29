@@ -160,5 +160,27 @@ module block_match_system_tb;
         //.min_dist_finder_right_avalon_streaming_source_valid (dist_left_valid), // min_dist_finder_right_avalon_streaming_source.valid
         //.min_dist_finder_right_avalon_streaming_source_data  (dist_left_data)   //      //  
     );
+    
+    output_compare #(
+        .data_width (8),
+        .data_len   (15*30),
+        .file_path  ("confidence_l.bin")
+    ) ocfloop  (
+        .clk    (clk50),
+        .reset  (~reset),
+        .data_in_valid  (u0.cropped_blk_valid_left),
+        .data_in        (u0.disparity_gen_left.min_dist_finder.confidence)
+    );
+    
+    output_compare #(
+        .data_width (256),
+        .data_len   (15*30),
+        .file_path  ("xors_left.bin")
+    ) output_compare_left_xors  (
+        .clk    (clk50),
+        .reset  (~reset),
+        .data_in_valid  (u0.cropped_blk_valid_left),
+        .data_in        (u0.disparity_gen_left.min_dist_finder.min_xors)
+    );
 
 endmodule

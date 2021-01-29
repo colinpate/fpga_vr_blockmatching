@@ -8,6 +8,7 @@ Created on Fri Dec 18 18:27:13 2020
 #import opencv2 as cv2
 import numpy as np
 import math
+from generate_stimulus_xors import array_to_file
 
 center_width = 304
 third_width = 240
@@ -30,24 +31,12 @@ print(array_center[0,8:16])
 print(array_center[0,16:24])
 print(array_center[0,24:32])
 
-def array_to_file(these_arrays):
-    with open("../../../modelsim/stimulus_in.bin", "wb") as fileout:
-        for this_array in these_arrays:
-            array_index = 0
-            while array_index < len(this_array.flatten()):
-                this_byte = 0
-                for i in range(8):
-                    this_byte += this_array.flatten()[array_index] << i
-                    array_index += 1
-                #print(this_byte)
-                byte_out = int(this_byte).to_bytes(1, "little")
-                #print(byte_out)
-                fileout.write(byte_out)
-
-array_to_file([array_left, array_center, array_right])
+array_to_file([array_left, array_center, array_right], "stimulus_in.bin")
 
 def find_best_coords(block, srch_block):
     min_diff = blk_width * blk_height * 200000
+    sum_multiplier = 1 / ((srch_blk_width - blk_width) * (srch_blk_height - blk_height))
+    overall_sum = 0
     for y in range(0, srch_blk_height - blk_height, srch_inc_y):
         for x in range(0, srch_blk_width - blk_width, srch_inc_x):
             srch_blk_area = srch_block[y:y+blk_height, x:x+blk_width]
@@ -55,8 +44,10 @@ def find_best_coords(block, srch_block):
                 #print(f"src {srch_blk_area[0]}")
                 #print(f"blk {block[0]}")
             diff_area = np.abs(srch_blk_area - block)
+            diff_area_save = diff_area.copy()
             diff_area[15,15] = 0
             diff = np.sum(diff_area)
+            overall_sum += diff
             #if (x == 47) and (y % 2):
                 #print(f"{x} y {y} diff {diff} src {srch_blk_area[0]}")
             #print(f"{x} y {y} diff {diff} src {srch_blk_area[0]}")
@@ -64,33 +55,40 @@ def find_best_coords(block, srch_block):
                 min_diff = diff
                 min_diff_x = x
                 min_diff_y = y
+                best_diff_area = diff_area_save.copy()
                 msb = srch_blk_area[0]
             #break
         #break
-    return min_diff, min_diff_x, min_diff_y, msb
+    avg_sum = int(overall_sum * sum_multiplier)
+    print(f"Avg {avg_sum} min {min_diff}")
+    confidence = int(avg_sum - min_diff)
+    return min_diff, min_diff_x, min_diff_y, msb, best_diff_area, confidence
 
 min_l_file = open("../../../modelsim/compare_out_l.bin", "wb")
 min_r_file = open("../../../modelsim/compare_out_r.bin", "wb")
+conf_l_file = open("../../../modelsim/confidence_l.bin", "wb")
+conf_r_file = open("../../../modelsim/confidence_r.bin", "wb")
 
 out_count = 0
 
 rows = int(third_height  / blk_height)
 
+left_xors = []
+right_xors = []
+
 for srch_y in range(0, rows * blk_height, blk_height):
     print(out_count)
-#for srch_y in range(0, blk_height*2, blk_height):
     for srch_x in range(0, center_width - srch_blk_width + blk_width, blk_width):
-    #for srch_x in range(0, blk_width, blk_width):
         y_i = min(max(srch_y - 4, 0), third_height-srch_blk_height)
         srch_blk = array_center[y_i:y_i+srch_blk_height,srch_x:srch_x+srch_blk_width]
         y_coord = int(y_i + (srch_blk_height - blk_height) / 2)
-        #print(left_block.shape)
         
         l_blk_coord = srch_x
         if l_blk_coord < third_width:
             left_block = array_left[y_coord:y_coord+blk_height,l_blk_coord:l_blk_coord+blk_width]
-            min_diff, min_x, min_y, msb = find_best_coords(left_block, srch_blk)
-            #print(hex(min_y) +" " + hex(min_x) + " " + str(msb))
+            min_diff, min_x, min_y, msb, xors, confidence = find_best_coords(left_block, srch_blk)
+            left_xors.append(xors)
+            conf_l_file.write(confidence.to_bytes(1, "little"))
             min_l_file.write(min_y.to_bytes(1, "little"))
             min_l_file.write(min_x.to_bytes(1, "little"))
         
@@ -98,13 +96,17 @@ for srch_y in range(0, rows * blk_height, blk_height):
         if r_blk_coord >= 0:
             out_count += 1
             right_block = array_right[y_coord:y_coord+blk_height,r_blk_coord:r_blk_coord+blk_width]
-            min_diff, min_x, min_y, msb = find_best_coords(right_block, srch_blk)
-            print(hex(min_y) +" " + hex(min_x) + " " + str(msb))
+            min_diff, min_x, min_y, msb, xors, confidence = find_best_coords(right_block, srch_blk)
+            right_xors.append(xors)
+            conf_r_file.write(confidence.to_bytes(1, "little"))
             min_r_file.write(min_y.to_bytes(1, "little"))
             min_r_file.write(min_x.to_bytes(1, "little"))
-        else:
-            print("floop")
+            
+array_to_file(left_xors, "xors_left.bin")
+array_to_file(right_xors, "xors_right.bin")
 print(out_count)
 min_l_file.close()
 min_r_file.close()
+conf_l_file.close()
+conf_r_file.close()
         
