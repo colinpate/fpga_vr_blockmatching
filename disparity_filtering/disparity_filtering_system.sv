@@ -16,6 +16,10 @@ module disparity_filtering_system #(
         input [7:0]             confidence,
         input [15:0]            min_coords,
         input                   xors_valid,
+        
+        input [7:0]             gray_pixel_data,
+        input                   gray_pixel_valid,
+        output                  gray_pixel_ready,
     
         output [15:0]           disparity,
         output                  disparity_valid
@@ -49,8 +53,8 @@ module disparity_filtering_system #(
     );
     
     logic [7 + disp_bits:0] disp_conf_out;
-    logic [7:0] conf_out;
     logic out_valid;
+    logic out_ready;
     
     pixel_processor #(
         .dec_factor (decimate_factor),
@@ -63,88 +67,29 @@ module disparity_filtering_system #(
         .conf_in    (conf_data),
         .disp_conf_valid    (pix_stream_valid),
         .disp_conf_out      (disp_conf_out),
-        .conf_out           (conf_out),
-        .out_valid          (out_valid)
-    );
- 
-    logic [7 + disp_bits:0] dc_to_bram;
-    logic [7:0] c_to_bram;
-    logic valid_to_bram;
-    
-    filter_and_pad_bank #(
-        .disp_bits  (disp_bits),
-        .line_len   (frame_w / decimate_factor),
-        .num_filters    (4),
-        .filter_radius  (2)
-    ) f (
-        .clk    (clk),
-        .reset  (reset),
-        .disp_conf_in   (disp_conf_out),
-        .conf_in        (conf_out),
-        .conf_in_valid  (out_valid),
-        
-        .disp_conf_out  (dc_to_bram),
-        .conf_out       (c_to_bram),
-        .conf_out_valid (valid_to_bram)
-    );
-    /*assign dc_to_bram = disp_conf_out;
-    assign c_to_bram = conf_out;
-    assign valid_to_bram = out_valid;*/
-    
-    logic [7 + disp_bits:0]    dc_from_bram;
-    logic [7:0]     c_from_bram;
-    logic valid_from_bram;
-    
-    bram_reader_writer #(
-        .width  (frame_w / decimate_factor),
-        .height (frame_h / decimate_factor),
-        .wr_height  (frame_wr_height / decimate_factor),
-        .data_width (16 + disp_bits)
-    ) brw1 (
-        .clk    (clk),
-        .reset  (reset),
-        .in_data    ({dc_to_bram, c_to_bram}),
-        .in_valid   (valid_to_bram),
-        .out_data   ({dc_from_bram, c_from_bram}),
-        .out_valid  (valid_from_bram)
+        .out_valid          (out_valid),
+        .out_ready          (out_ready)
     );
     
-    logic [7 + disp_bits:0]    dc_to_div;
-    logic [7:0]     c_to_div;
-    logic valid_to_div;
+    logic [7:0] downsample_pix_data;
+    logic       downsample_pix_valid;
+    logic       downsample_pix_ready;
     
-    filter_and_pad_bank #(
-        .disp_bits  (disp_bits),
-        .line_len   (frame_h / decimate_factor),
-        .num_filters    (4),
-        .filter_radius  (2)
-    )f2(
-        .clk    (clk),
-        .reset  (reset),
-        .disp_conf_in   (dc_from_bram),
-        .conf_in        (c_from_bram),
-        .conf_in_valid  (valid_from_bram),
-        
-        .disp_conf_out  (dc_to_div),
-        .conf_out       (c_to_div),
-        .conf_out_valid (valid_to_div)
+    downsample_2d #(
+        .dec_factor (decimate_factor),
+        .in_width   (frame_w),
+        .in_height  (frame_h)
+    ) downsample_2d_inst (
+        .clk        (clk),
+        .reset      (reset),
+        .in_data    (gray_pixel_data),
+        .in_valid   (gray_pixel_valid),
+        .in_ready   (gray_pixel_ready),
+        .out_data   (downsample_pix_data),
+        .out_valid  (downsample_pix_valid),
+        .out_ready  (downsample_pix_ready)
     );
-    /*assign dc_to_div = dc_from_bram;
-    assign c_to_div = c_from_bram;
-    assign valid_to_div = valid_from_bram;*/
     
-    conf_disp_divide #(
-        .disp_bits  (disp_bits)
-    )cdd(
-        .clk    (clk),
-        .reset  (reset),
-        .in_conf    (c_to_div),
-        .in_conf_disp   (dc_to_div),
-        .in_valid   (valid_to_div),
-        .out_disp   (disparity[7:3]),
-        .out_conf   (disparity[15:8]),
-        .out_valid  (disparity_valid)
-    );
-    //assign disparity = c_to_div;
-    //assign disparity_valid = valid_to_div;
+    
+    
 endmodule

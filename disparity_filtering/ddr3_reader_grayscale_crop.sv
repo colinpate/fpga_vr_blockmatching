@@ -4,7 +4,8 @@ module ddr3_reader_grayscale_crop
     #(
     parameter frame_width = 768,
     parameter crop_width = 240,
-    parameter frame_lines = 480
+    parameter frame_lines = 480,
+    parameter i_am_left = 1
     )
     (
         input                   pclk,
@@ -132,6 +133,8 @@ module ddr3_reader_grayscale_crop
     logic               address_fifo_empty;
     logic               address_fifo_read;
     logic [28:0]        address_fifo_q;
+    logic [26:0]        address_fifo_addr_out;
+    logic [1:0]         address_fifo_third_out;
     
     scfifo_wrapper #(
         .width  (29),
@@ -148,8 +151,12 @@ module ddr3_reader_grayscale_crop
     
     logic [$clog2(frame_lines) - 1:0]   line_number;
     logic [7:0]                         clear_fifo_count;
+    logic                               read_this_third;
     
     assign ddr3_read = (state == ST_READ);
+    assign address_fifo_addr_out = address_fifo_q[26:0];
+    assign address_fifo_third_out = address_fifo_q[28:27];
+    assign read_this_third = ((i_am_left && (address_fifo_third_out == 2'b00)) || ((!i_am_left) && (address_fifo_third_out == 2'b10)));
     
     always @(posedge ddr3clk)
     begin
@@ -161,6 +168,7 @@ module ddr3_reader_grayscale_crop
             clear_fifo_count    <= 0;
         end else begin
             fifo_aclr   <= 0;
+            
             if (ddr3_read && (!ddr3_waitrequest)) begin
                 if (ddr3_readdatavalid) begin
                     fifo_cnt  <= fifo_cnt + burst_len - 1;
@@ -185,11 +193,14 @@ module ddr3_reader_grayscale_crop
                 end
                 
                 ST_IDLE: begin
+                    address_fifo_read   <= 0;
                     if ((!address_fifo_empty) && (fifo_cnt == 0) && (fifo_wrempty)) begin
-                        state           <= ST_WAIT_FIFO;
-                        ddr3_address    <= address_fifo_q;
-                        line_number     <= 0;
                         address_fifo_read      <= 1;
+                        if (read_this_third) begin
+                            state                  <= ST_WAIT_FIFO;
+                            ddr3_address           <= address_fifo_q;
+                            line_number            <= 0;
+                        end
                     end
                 end
                 

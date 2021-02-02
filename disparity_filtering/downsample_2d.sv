@@ -19,16 +19,15 @@ module downsample_2d #(
     
     assign out_data = in_data;
     assign out_valid = in_valid && (out_x == 0) && (out_y == 0);
-    assign in_ready = out_ready;
+    assign in_ready = out_ready || ((out_x != 0) || (out_y != 0));
     
     always @(posedge clk) begin
         if (reset) begin
             col <= 0;
-            row <= 0;
             out_x   <= 0;
             out_y   <= 0;
         end else begin
-            if (in_valid) begin
+            if (in_valid && in_ready) begin
                 if (col == (in_width - 1)) begin
                     col <= 0;
                     if (out_y == (dec_factor - 1)) begin

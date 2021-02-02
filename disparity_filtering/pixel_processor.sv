@@ -53,9 +53,6 @@ module pixel_processor #(
     assign conf_result = (pop_count_sum * conf_reg) >> frac_bits;
     assign conf_result_valid = disp_conf_valid && (shift_counter == (dec_factor - 1));
     
-    // Stage 2 of the pipeline
-    assign disp_conf_out = ;
-    
     always @(posedge clk) begin
         if (reset) begin
             shift_counter   <= 0;

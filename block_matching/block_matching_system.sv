@@ -37,6 +37,14 @@ module block_matching_system #(
         output wire         min_dist_finder_left_avalon_streaming_source_valid, // min_dist_finder_left:min_sum_valid -> avalon_st_adapter:in_0_valid
         output wire  [15:0] min_dist_finder_left_avalon_streaming_source_data,  // min_dist_finder_left:min_out_coords -> avalon_st_adapter:in_0_data
         
+        input   [7:0]   gray_pixel_left_data,
+        input           gray_pixel_left_valid,
+        output          gray_pixel_left_ready,
+        
+        input   [7:0]   gray_pixel_right_data,
+        input           gray_pixel_right_valid,
+        output          gray_pixel_right_ready,
+        
         output wire [15:0]  disparity_out_left,
         output wire         disparity_valid_left,
         output wire [15:0]  disparity_out_right,
@@ -203,6 +211,11 @@ module block_matching_system #(
         .reset              (~reset_reset_n),
         .xors_in            (min_xors_left),
         .confidence         (conf_out_left),
+        
+        .gray_pixel_data    (gray_pixel_left_data),
+        .gray_pixel_valid   (gray_pixel_left_valid),
+        .gray_pixel_ready   (gray_pixel_left_ready),
+        
         .min_coords         (min_out_coords_left),
         .xors_valid         (cropped_blk_valid_left),
         .disparity          (disparity_out_left),
@@ -275,6 +288,11 @@ module block_matching_system #(
         .reset              (~reset_reset_n),
         .xors_in            (min_xors_right),
         .confidence         (conf_out_right),
+        
+        .gray_pixel_data    (gray_pixel_right_data),
+        .gray_pixel_valid   (gray_pixel_right_valid),
+        .gray_pixel_ready   (gray_pixel_right_ready),
+        
         .min_coords         (min_out_coords_right),
         .xors_valid         (cropped_blk_valid_right),
         .disparity          (disparity_out_right),
