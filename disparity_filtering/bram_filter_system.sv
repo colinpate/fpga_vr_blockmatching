@@ -106,7 +106,7 @@ module bram_filter_system #(
         .idle           (bram_writer_2in_idle),
         
         .wr_bram_index  (bram_writer_index_out),
-        .wr_data        (bram_writer_wr_data),
+        .wr_data        (bram_writer_wr_data), // {disp, conf, gray}
         .wr_address     (bram_writer_wr_address),
         .wr_ena         (bram_writer_wr_ena)
     );

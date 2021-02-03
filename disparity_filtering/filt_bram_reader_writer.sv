@@ -111,7 +111,25 @@ module filt_bram_reader_writer #(
     end
     
     // Filters go here
-    assign wr_data = rd_data;//{rd_data[disp_bits + 15 : 8], rd_data[7:0] + 1};
-    assign filter_out_valid = filter_in_valid;
+    /*assign wr_data = rd_data;//{rd_data[disp_bits + 15 : 8], rd_data[7:0] + 1};
+    assign filter_out_valid = filter_in_valid;*/
+    
+    bilateral_filter_3x1 #(
+        .disp_bits      (disp_bits),
+        .gray_threshold (5)
+    ) bf (
+        .clk                    (clk),
+        .reset                  (reset),
+        .disparity_in           (rd_data[15 + disp_bits:16]),
+        .confidence_in          (rd_data[15:8]),
+        .gray_in                (rd_data[7:0]),
+        .first_pixel_in_line    (read_line_first_addr_d1),
+        .last_pixel_in_line     (read_line_last_addr_d1),
+        .last_pixel_in_frame    (read_frame_last_addr_d1),
+        .in_valid               (filter_in_valid),
+        
+        .gray_out               (wr_data[7:0]),
+        .out_valid              (filter_out_valid)
+    );
     
 endmodule
