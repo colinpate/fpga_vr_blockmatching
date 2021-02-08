@@ -47,8 +47,10 @@ module block_matching_system #(
         
         output wire [15:0]  disparity_out_left,
         output wire         disparity_valid_left,
+        input wire          disparity_ready_left,
         output wire [15:0]  disparity_out_right,
-        output wire         disparity_valid_right
+        output wire         disparity_valid_right,
+        input wire         disparity_ready_right
 	);
 
     localparam blk_size = blk_w * blk_h;
@@ -97,6 +99,9 @@ module block_matching_system #(
     
     wire [15:0] min_dist_finder_left_out_conduit_blk_index;
     wire [15:0] min_dist_finder_right_out_conduit_blk_index;
+    
+    logic [3:0] image_index_counter_left;
+    logic [3:0] image_index_counter_right;
 
 	block_match_ram_module #(
         .third_width    (third_w),
@@ -136,6 +141,8 @@ module block_matching_system #(
 		.blk_index_left  (blk_match_ctrl_fsm_0_left_control_blk_index),           //                  .blk_index
 		.blk_addr_left   (blk_match_ctrl_fsm_0_left_control_blk_addr),            //                  .blk_addr
 		.bm_done         (blk_match_left_ctrl_conduit_done),                      //                  .done
+        .image_index_counter_left  (image_index_counter_left),
+        .image_index_counter_right (image_index_counter_right),
 		.srch_addr_right (blk_match_ctrl_fsm_0_right_control_srch_addr),          //     right_control.srch_addr
 		.bm_start_right  (blk_match_ctrl_fsm_0_right_control_start),              //                  .start
 		.blk_addr_right  (blk_match_ctrl_fsm_0_right_control_blk_addr),           //                  .blk_addr
@@ -212,6 +219,8 @@ module block_matching_system #(
         .xors_in            (min_xors_left),
         .confidence         (conf_out_left),
         
+        .image_index_counter     (image_index_counter_left),
+        
         .gray_pixel_data    (gray_pixel_left_data),
         .gray_pixel_valid   (gray_pixel_left_valid),
         .gray_pixel_ready   (gray_pixel_left_ready),
@@ -219,7 +228,8 @@ module block_matching_system #(
         .min_coords         (min_out_coords_left),
         .xors_valid         (cropped_blk_valid_left),
         .disparity          (disparity_out_left),
-        .disparity_valid    (disparity_valid_left)
+        .disparity_valid    (disparity_valid_left),
+        .disparity_ready    (disparity_ready_left)
     );
     
     logic [15:0] min_out_coords_right;
@@ -289,6 +299,8 @@ module block_matching_system #(
         .xors_in            (min_xors_right),
         .confidence         (conf_out_right),
         
+        .image_index_counter     (image_index_counter_right),
+        
         .gray_pixel_data    (gray_pixel_right_data),
         .gray_pixel_valid   (gray_pixel_right_valid),
         .gray_pixel_ready   (gray_pixel_right_ready),
@@ -296,6 +308,7 @@ module block_matching_system #(
         .min_coords         (min_out_coords_right),
         .xors_valid         (cropped_blk_valid_right),
         .disparity          (disparity_out_right),
-        .disparity_valid    (disparity_valid_right)
+        .disparity_valid    (disparity_valid_right),
+        .disparity_ready    (1'b1)//disparity_ready_right)
     );
 endmodule

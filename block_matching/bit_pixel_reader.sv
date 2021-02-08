@@ -42,6 +42,15 @@ module bit_pixel_reader
     logic        buf_index;
     logic [7:0] rd_data_i;
     logic rd_ena;
+    logic rddatavalid;
+    
+    logic [7:0] fifo_q;
+    logic       fifo_empty;
+    logic [3:0] fifo_usedw;
+    logic fifo_almost_full;
+    assign fifo_almost_full = (fifo_usedw > 4);
+    
+    assign pixels_valid = ~fifo_empty;
     
     assign end_address_i = (third_index == 2'b01) ? (buf_index ? center_reads * 2 : center_reads)
                                                     : (buf_index ? third_reads * 2 : third_reads);
@@ -62,9 +71,9 @@ module bit_pixel_reader
         endcase
     end
     
-    assign rd_ena = (state == ST_READING) && pixels_ready;
+    assign rd_ena = (state == ST_READING) && !(fifo_almost_full);
     
-    assign bit_pixels = (read_address_i == start_address_i) ? 64'hFFFFFFFFFFFFFFFF : {rd_data_i[7], 7'h00, rd_data_i[6], 7'h00, rd_data_i[5], 7'h00, rd_data_i[4], 7'h00, rd_data_i[3], 7'h00, rd_data_i[2], 7'h00, rd_data_i[1], 7'h00, rd_data_i[0], 7'h00};
+    assign bit_pixels = (read_address_i == start_address_i) ? 64'hFFFFFFFFFFFFFFFF : {fifo_q[7], 7'h00, fifo_q[6], 7'h00, fifo_q[5], 7'h00, fifo_q[4], 7'h00, fifo_q[3], 7'h00, fifo_q[2], 7'h00, fifo_q[1], 7'h00, fifo_q[0], 7'h00};
     
     always @(posedge pclk)
     begin
@@ -72,11 +81,11 @@ module bit_pixel_reader
             third_index         <= 0;
             image_number_reg    <= 0;
             read_address_i      <= 0;
-            pixels_valid        <= 0;
+            rddatavalid        <= 0;
             buf_index           <= 0;
             state               <= ST_IDLE;
         end else begin
-            pixels_valid    <= rd_ena;
+            rddatavalid    <= rd_ena;
             
             case (state)
                 ST_IDLE: begin
@@ -89,9 +98,7 @@ module bit_pixel_reader
                 end
                 
                 ST_READING: begin
-                    //pixels_valid    <= 0;
-                    if (pixels_ready) begin
-                        //pixels_valid    <= 1;
+                    if (!fifo_almost_full) begin
                         if (read_address_i == (end_address_i - 1)) begin
                             if (third_index == 2'b00) begin // Center is next
                                 read_address_i <= buf_index ? center_reads : 0;
@@ -113,4 +120,17 @@ module bit_pixel_reader
             endcase
         end
     end
+    
+    scfifo_wrapper #(
+        .width  (8),
+        .depth  (8)
+    )   output_fifo (
+        .clock  (pclk),
+        .data   (rd_data_i),
+        .wrreq  (rddatavalid),
+        .rdreq  (pixels_ready && (!fifo_empty)),
+        .q      (fifo_q),
+        .empty  (fifo_empty),
+        .usedw  (fifo_usedw)
+    );
 endmodule

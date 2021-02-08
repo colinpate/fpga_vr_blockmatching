@@ -80,13 +80,38 @@ module bilateral_filter_3x1 #(
     logic [7:0]                     gray_d2;
     logic [1:0]                     valid_count_d2;
     logic                           accs_valid;
+    logic [7:0]                     divided_conf;
     
+    always_comb begin
+        divided_conf = 0;
+        case (valid_count_d2)
+            2'b01: divided_conf = conf_acc;
+            2'b10: divided_conf = conf_acc >> 1;
+            2'b11: divided_conf = (conf_acc >> 2) + (conf_acc >> 4) + (conf_acc >> 6); // (1/4) + (1/16) + (1/64) approximates 1/3
+            default: divided_conf = 0;
+        endcase
+    end
     
     // Pipeline stage infinity
-    assign out_valid = accs_valid;
+    localparam num_div_stages = 5;
+    logic [num_div_stages - 1:0]        output_valid_sreg;
+    logic [num_div_stages - 1:0][7:0]   conf_out_sreg;
+    logic [num_div_stages - 1:0][7:0]   gray_out_sreg;
+    /*assign out_valid = accs_valid;
     assign gray_out = gray_d2;
     assign disparity_out = conf_disp_acc / conf_acc;
-    assign confidence_out = conf_acc / valid_count_d2; 
+    assign confidence_out = conf_acc / valid_count_d2;*/
+    
+    // This is a fixed IP that relies on the disparity being 10 bits. Latency is 5 clock cycles,
+    pipelined_divide_15n_10d divider (
+        .numer      (conf_disp_acc),
+        .denom      (conf_acc),
+        .clock      (clk),
+        .quotient   (disparity_out)
+    );
+    assign confidence_out   = conf_out_sreg[0];
+    assign gray_out         = gray_out_sreg[0];
+    assign out_valid        = output_valid_sreg[0];
     
     always @(posedge clk) begin
         if (reset) begin
@@ -114,6 +139,10 @@ module bilateral_filter_3x1 #(
             gray_d2         <= 0;
             valid_count_d2  <= 0;
             accs_valid      <= 0;
+            
+            output_valid_sreg   <= 0;
+            conf_out_sreg       <= 0;
+            gray_out_sreg       <= 0;
         end else begin
             sregs_valid     <= 1'b0;
             sregs_valid_d1  <= 1'b0;
@@ -160,6 +189,10 @@ module bilateral_filter_3x1 #(
                 gray_d2         <= gray_sreg_d1[1];
                 accs_valid      <= 1;
             end
+            
+            output_valid_sreg   <= {accs_valid, output_valid_sreg[num_div_stages - 1:1]};
+            conf_out_sreg       <= {divided_conf, conf_out_sreg[num_div_stages - 1:1]};
+            gray_out_sreg       <= {gray_d2, gray_out_sreg[num_div_stages - 1:1]};
         end
     end
 endmodule

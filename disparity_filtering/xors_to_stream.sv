@@ -13,6 +13,7 @@ module xors_to_stream #(
     input [7:0]             confidence,
     input [15:0]            min_coords,
     input                   xors_valid,
+    input                   fifo_almost_full_in,
     
     output [decimate_factor - 1:0]  pix_stream_data,
     output [7:0]                    conf_out,
@@ -121,7 +122,7 @@ module xors_to_stream #(
     assign rd_current_blk_col = read_col >> $clog2(blk_w / decimate_factor); // Get the index of the block we're reading from
     assign read_blk_row = read_row >> $clog2(blk_h);
     assign writer_is_ahead = (reading_buf_index != writing_buf_index) || (wr_row_of_block > read_blk_row);
-    assign blk_read = (state_read_buf == 1'b1) && writer_is_ahead;
+    assign blk_read = (state_read_buf == 1'b1) && writer_is_ahead && (!fifo_almost_full_in);
     
     assign pix_stream_data = bram_rd_data;
     assign pix_stream_valid = blk_rdv;
@@ -196,7 +197,7 @@ module xors_to_stream #(
                 end
                 
                 1'b1: begin
-                    if (writer_is_ahead) begin
+                    if (writer_is_ahead && (!fifo_almost_full_in)) begin
                         if (read_small_row == (decimate_factor - 1)) begin
                             read_small_row  <= 0;
                             if (read_col == (frame_rd_addr_w - 1)) begin // We're at the end of the row

@@ -11,7 +11,7 @@ module ddr3_pixel_writer_supersimple
     input                   pclk_reset,
     input [in_width - 1:0]  pixel,
     input                   pixel_valid,
-    output                  pixel_ready,
+    output logic            pixel_ready,
 	
     input                       ddr3_clk,
     input                       ddr3_clk_reset,
@@ -68,7 +68,7 @@ module ddr3_pixel_writer_supersimple
         .wrusedw    ( fifo_wrusedw )
     );
     
-    assign pixel_ready = (~fifo_wrfull) && !(fifo_wrusedw == 8'hFF);
+    assign pixel_ready = (~fifo_wrfull) && !(fifo_wrusedw > 127);
     
     assign ddr3_write_data = fifo_data;
     assign fifo_read    = ((state == ST_FIRST_READ) || ((fifo_read_ena) && (ddr3_write) && (!ddr3_waitrequest)));
@@ -83,11 +83,12 @@ module ddr3_pixel_writer_supersimple
         end else begin
             fifo_aclr       <= 0;
             
-            if (pixel_valid) begin
+            if (pixel_valid && pixel_ready) begin
                 pixel_sreg  <= {pixel, pixel_sreg[255:in_width]}; //ARGB
                 pixel_index <= pixel_index + 1;
                 if (pixel_index == (pixels_per_write - 1)) begin
-                    fifo_write <= 1;
+                    pixel_index <= 0;
+                    fifo_write  <= 1;
                 end else begin
                     fifo_write <= 0;
                 end

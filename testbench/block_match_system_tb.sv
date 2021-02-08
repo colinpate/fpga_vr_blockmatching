@@ -130,7 +130,8 @@ module block_match_system_tb;
     end
     
     block_matching_system #(
-        .output_confidence  (0)
+        .output_confidence  (0),
+        .decimate_factor    (2)
     ) u0 (
         .clk_clk                                      (clk50),                                      //                                  clk.clk
         .reset_reset_n                                (reset),                                //                                reset.reset_n
@@ -138,22 +139,13 @@ module block_match_system_tb;
         .bit_pix_bram_mod_0_wr_third                  (third_index_in),                //                bit_pix_bram_mod_0_wr.address
         .bit_pix_bram_mod_0_wr_writedata              (pix_out),              //                                     .writedata
         .bit_pix_bram_mod_0_wr_write                  (wr_enable),                  //                                     .write
-        //.min_dist_finder_right_out_conduit_blk_index  (blk_col),  //    min_dist_finder_right_out_conduit.blk_index
-        //.min_dist_finder_left_out_conduit_blk_index  (blk_col),  //    min_dist_finder_right_out_conduit.blk_index
-        /*.min_dist_finder_right_out_conduit_sum        (<connected-to-min_dist_finder_right_out_conduit_sum>),        //                                     .sum
-        .min_dist_finder_right_out_conduit_valid      (<connected-to-min_dist_finder_right_out_conduit_valid>),      //                                     .valid
-        .min_dist_finder_right_out_conduit_blk_coords (<connected-to-min_dist_finder_right_out_conduit_blk_coords>), //                                     .blk_coords
-        .min_dist_finder_right_out_conduit_sumh       (<connected-to-min_dist_finder_right_out_conduit_sumh>),       //                                     .sumh
-        .min_dist_finder_right_out_conduit_xors       (<connected-to-min_dist_finder_right_out_conduit_xors>),       //                                     .xors
-        .min_dist_finder_left_out_conduit_blk_index   (<connected-to-min_dist_finder_left_out_conduit_blk_index>),   //     min_dist_finder_left_out_conduit.blk_index
-        .min_dist_finder_left_out_conduit_sum         (<connected-to-min_dist_finder_left_out_conduit_sum>),         //                                     .sum
-        .min_dist_finder_left_out_conduit_valid       (<connected-to-min_dist_finder_left_out_conduit_valid>),       //                                     .valid
-        .min_dist_finder_left_out_conduit_blk_coords  (<connected-to-min_dist_finder_left_out_conduit_blk_coords>),  //                                     .blk_coords
-        .min_dist_finder_left_out_conduit_sumh        (<connected-to-min_dist_finder_left_out_conduit_sumh>),        //                                     .sumh
-        .min_dist_finder_left_out_conduit_xors        (<connected-to-min_dist_finder_left_out_conduit_xors>),        //                                     .xors*/
-        //.blk_match_ctrl_fsm_0_img_number_sink_data    (image_number),     // blk_match_ctrl_fsm_0_img_number_sink.data
-        //.blk_match_ctrl_fsm_0_bm_status_conduit_bm_idle        (<connected-to-blk_match_ctrl_fsm_0_bm_status_conduit_bm_idle>),        //        blk_match_ctrl_fsm_0_bm_status_conduit.bm_idle
-        //.blk_match_ctrl_fsm_0_bm_status_conduit_bm_working_buf (<connected-to-blk_match_ctrl_fsm_0_bm_status_conduit_bm_working_buf>), //                                              .bm_working_buf
+        
+        .gray_pixel_left_valid  (1'b1),
+        .gray_pixel_right_valid (1'b1),
+        
+        .disparity_ready_left   (1'b0),
+        .disparity_ready_right  (1'b0),
+        
         .blk_match_ctrl_fsm_0_bm_status_conduit_image_number   (image_number),
         .min_dist_finder_left_avalon_streaming_source_valid  (dist_left_valid),  // min_dist_finder_left_avalon_streaming_source.valid
         .min_dist_finder_left_avalon_streaming_source_data   (dist_left_data)   //                                              .data

@@ -11,10 +11,11 @@ There are two separate BRAMs, each with one read port and one write port. These 
 where parts 1 and 4 are done on the one BRAM while parts 2 and 3 are done on the other - they switch back and forth.
 */
 
-module bram_filter_control_fsm #(
-    ) (
+module bram_filter_control_fsm (
         input clk,
         input reset,
+        
+        output logic [3:0]  image_index_counter,
         
         output  bram_writer_2in_start,
         output  bram_writer_2in_index,
@@ -57,6 +58,7 @@ module bram_filter_control_fsm #(
             index_filt      <= 1'b1;
             first_frame_complete    <= 1'b0;
             second_frame_complete   <= 1'b0;
+            image_index_counter     <= 0;
         end else begin
             case (state)
                 ST_IDLE: begin
@@ -71,6 +73,7 @@ module bram_filter_control_fsm #(
                 
                 ST_WAIT_DONE: begin
                     if (fsms_idle) begin // Everything is done
+                        image_index_counter     <= image_index_counter + 1;
                         state                   <= ST_START_FSMS;
                         index_filt  <= index_io;
                         index_io    <= index_filt;

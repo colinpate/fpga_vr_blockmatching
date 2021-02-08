@@ -32,7 +32,7 @@ module bram_reader_out #(
     logic [$clog2(fifo_depth) - 1:0] fifo_level;
     
     assign idle = (state == ST_IDLE);
-    assign fifo_almost_full = fifo_level > (fifo_depth - 3);
+    assign fifo_almost_full = fifo_level > (fifo_depth - 4);
     assign out_valid = !fifo_empty;
     
     scfifo_wrapper #(
@@ -40,7 +40,7 @@ module bram_reader_out #(
         .depth  (fifo_depth)
     ) output_fifo (
         .clock      (clk),
-        .data       (rd_data),
+        .data       ((rd_address < 16) ? 0 : rd_data),
         .rdreq      (out_ready && (!fifo_empty)),
         .sclr       (reset),
         .wrreq      (read_data_valid),
@@ -75,7 +75,8 @@ module bram_reader_out #(
                 
                 ST_RUNNING: begin
                     if (rd_address == (frame_size - 1)) begin
-                        state   <= ST_IDLE;
+                        state       <= ST_IDLE;
+                        rd_address  <= 0;
                     end else begin
                         rd_address  <= rd_address + 1;
                         if (fifo_almost_full) begin

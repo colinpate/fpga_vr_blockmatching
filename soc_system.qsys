@@ -1259,6 +1259,14 @@
   <parameter name="AUTO_DDR3_CLK_CLOCK_DOMAIN" value="5" />
   <parameter name="AUTO_DDR3_CLK_CLOCK_RATE" value="75000000" />
   <parameter name="AUTO_DDR3_CLK_RESET_DOMAIN" value="5" />
+  <parameter name="AUTO_DDR3_READER_GRAY_CROP_LEFT_DDR3_MASTER_ADDRESS_MAP"><![CDATA[<address-map><slave name='hps_0_bridges.f2h_sdram0_data' start='0x0' end='0x100000000' /></address-map>]]></parameter>
+  <parameter
+     name="AUTO_DDR3_READER_GRAY_CROP_LEFT_DDR3_MASTER_ADDRESS_WIDTH"
+     value="AddressWidth = 32" />
+  <parameter name="AUTO_DDR3_READER_GRAY_CROP_RIGHT_DDR3_MASTER_ADDRESS_MAP"><![CDATA[<address-map><slave name='hps_0_bridges.f2h_sdram0_data' start='0x0' end='0x100000000' /></address-map>]]></parameter>
+  <parameter
+     name="AUTO_DDR3_READER_GRAY_CROP_RIGHT_DDR3_MASTER_ADDRESS_WIDTH"
+     value="AddressWidth = 32" />
   <parameter name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_AVALON_MASTER_ADDRESS_MAP"><![CDATA[<address-map><slave name='hps_0_bridges.f2h_sdram0_data' start='0x0' end='0x100000000' /></address-map>]]></parameter>
   <parameter
      name="AUTO_DDR3_WRITER_SUPERSIMPLE_0_AVALON_MASTER_ADDRESS_WIDTH"
@@ -1294,6 +1302,24 @@
    kind="avalon"
    version="18.1"
    start="system_0.bit_pixel_conversion_system_0_ddr3"
+   end="hps_0.f2h_sdram0_data">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="system_0.ddr3_reader_gray_crop_left_ddr3_master"
+   end="hps_0.f2h_sdram0_data">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="system_0.ddr3_reader_gray_crop_right_ddr3_master"
    end="hps_0.f2h_sdram0_data">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />

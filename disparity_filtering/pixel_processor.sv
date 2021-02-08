@@ -1,6 +1,7 @@
 module pixel_processor #(
     parameter disp_bits = 5,
-    parameter dec_factor = 2
+    parameter dec_factor = 2,
+    parameter dec_frame_width = 240
     ) (
     input clk,
     input reset,
@@ -9,6 +10,7 @@ module pixel_processor #(
     input [disp_bits - 1:0]     disp_in,
     input [7:0]                 conf_in,
     input                       disp_conf_valid,
+    output logic                fifo_almost_full,
     
     output [7 + disp_bits:0]    disp_conf_out,
     output logic                out_valid,
@@ -18,12 +20,15 @@ module pixel_processor #(
     localparam num_pop_counts = (dec_factor * dec_factor) / 4;
     localparam frac_bits = 8;
     localparam frac_factor = (1 << frac_bits) / (dec_factor * dec_factor);
+    localparam fifo_depth = dec_frame_width * 8;
     
+    logic [$clog2(fifo_depth) - 1:0] fifo_usedw;
     logic [dec_factor - 1:0][dec_factor - 1:0] pixels_in_sreg;
     logic [num_pop_counts - 1:0][2:0] pop_count_result;
     logic [num_pop_counts * 4 - 1:0] pop_count_input;
-    logic [$clog2(dec_factor * dec_factor) - 1:0]   pop_count_sum;
+    logic [$clog2(dec_factor * dec_factor):0]   pop_count_sum;
     
+    assign fifo_almost_full = fifo_usedw > (fifo_depth - 16);
     assign pop_count_input = pixels_in_sreg;
     
     pop_count pc1[num_pop_counts - 1:0](
@@ -50,7 +55,7 @@ module pixel_processor #(
     logic                   fifo_empty;
     
     // Stage 1 of the pipeline
-    assign conf_result = (pop_count_sum * conf_reg) >> frac_bits;
+    assign conf_result = (pop_count_sum * conf_reg) >> frac_bits; // 8p8 * 3p0 >> 8 = 11p0 but pop_count_sum * frac_factor can't be more than 256 so it's okay
     assign conf_result_valid = disp_conf_valid && (shift_counter == (dec_factor - 1));
     
     always @(posedge clk) begin
@@ -66,7 +71,7 @@ module pixel_processor #(
             // Pipeline stage 1
             conf_result_valid_d1    <= conf_result_valid;
             disp_reg                <= disp_in;
-            conf_reg                <= conf_in * frac_factor; //8p0 * 0p8
+            conf_reg                <= conf_in * frac_factor; //8p0 * 0p8 = 8p8
             if (disp_conf_valid) begin
                 pixels_in_sreg  <= {pixels_in_sreg[dec_factor - 2:0], (~pixels_in)};
                 if (shift_counter == (dec_factor - 1)) begin
@@ -87,13 +92,14 @@ module pixel_processor #(
     
     scfifo_wrapper #(
         .width  (disp_bits + 8),
-        .depth  (128) // pretty much arbitrary
+        .depth  (fifo_depth) // pretty much arbitrary
     ) output_fifo (
         .clock  (clk),
         .data   ({disp_reg_d1, conf_result_reg}),
         .wrreq  (fifo_wr),
         .empty  (fifo_empty),
         .q      (disp_conf_out),
+        .usedw  (fifo_usedw),
         .sclr   (reset),
         .rdreq  (out_ready && (!fifo_empty))
     );

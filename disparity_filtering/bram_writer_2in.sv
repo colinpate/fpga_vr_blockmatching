@@ -11,11 +11,11 @@ module bram_writer_2in #(
         input reset,
         input [a_width - 1:0]    a_data,
         input                    a_valid,
-        input                    a_ready,
+        output                   a_ready,
         
         input [b_width - 1:0]    b_data,
         input                    b_valid,
-        input                    b_ready,
+        output                   b_ready,
         
         input                   start,
         input                   bram_index_in,
@@ -59,7 +59,8 @@ module bram_writer_2in #(
                 
                 ST_RUNNING: begin
                     if (wr_address == (frame_size - 1)) begin
-                        state   <= ST_IDLE;
+                        state           <= ST_IDLE;
+                        wr_address      <= 0;
                     end else begin
                         state       <= ST_WAIT_DATA;
                         wr_address  <= wr_address + 1;

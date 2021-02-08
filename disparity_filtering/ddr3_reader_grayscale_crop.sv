@@ -5,7 +5,8 @@ module ddr3_reader_grayscale_crop
     parameter frame_width = 768,
     parameter crop_width = 240,
     parameter frame_lines = 480,
-    parameter i_am_left = 1
+    parameter i_am_left = 1,
+    parameter decimate_factor = 2
     )
     (
         input                   pclk,
@@ -81,7 +82,8 @@ module ddr3_reader_grayscale_crop
     logic                       fifo_rdv;
     
     assign pixel_data = pix_sreg[7:0];
-    assign pixel_valid = (out_state == OST_SEND_FRAME);
+    //assign pixel_valid = (out_state == OST_SEND_FRAME);
+    assign pixel_valid = 1'b1;
     
     always @(posedge pclk)
     begin
@@ -94,7 +96,15 @@ module ddr3_reader_grayscale_crop
         end else begin
             fifo_rd             <= 0;
             
-            case (out_state)
+            if (pixel_ready) begin
+                if (pix_sreg[7:0] == 239) begin
+                    pix_sreg[7:0]   <= 0;
+                end else begin
+                    pix_sreg[7:0] <= pix_sreg[7:0] + 1;
+                end
+            end
+            
+            /*case (out_state)
                 OST_IDLE: begin
                     out_state           <= OST_WAIT_FIFO;
                     frame_number        <= frame_number + 1;
@@ -126,7 +136,7 @@ module ddr3_reader_grayscale_crop
                         end
                     end
                 end
-            endcase
+            endcase*/
         end
     end
     
@@ -153,7 +163,8 @@ module ddr3_reader_grayscale_crop
     logic [7:0]                         clear_fifo_count;
     logic                               read_this_third;
     
-    assign ddr3_read = (state == ST_READ);
+    //assign ddr3_read = (state == ST_READ);
+    assign ddr3_read = 1'b0;//(state == ST_READ);
     assign address_fifo_addr_out = address_fifo_q[26:0];
     assign address_fifo_third_out = address_fifo_q[28:27];
     assign read_this_third = ((i_am_left && (address_fifo_third_out == 2'b00)) || ((!i_am_left) && (address_fifo_third_out == 2'b10)));
@@ -166,6 +177,7 @@ module ddr3_reader_grayscale_crop
             fifo_cnt            <= 0;
             fifo_aclr           <= 1;
             clear_fifo_count    <= 0;
+            ddr3_address        <= 0;
         end else begin
             fifo_aclr   <= 0;
             
@@ -198,7 +210,7 @@ module ddr3_reader_grayscale_crop
                         address_fifo_read      <= 1;
                         if (read_this_third) begin
                             state                  <= ST_WAIT_FIFO;
-                            ddr3_address           <= address_fifo_q;
+                            ddr3_address           <= address_fifo_addr_out;
                             line_number            <= 0;
                         end
                     end

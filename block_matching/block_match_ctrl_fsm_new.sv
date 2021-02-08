@@ -23,6 +23,8 @@ module block_match_ctrl_fsm_new #(
     output logic        bm_start_left,
     output logic        bm_start_right,
     input               bm_done,
+    input [3:0]         image_index_counter_left,
+    input [3:0]         image_index_counter_right,
     
     output logic [15:0]  blk_index_left,
     output logic [15:0]  blk_index_right
@@ -53,7 +55,7 @@ module block_match_ctrl_fsm_new #(
     localparam initial_l_blk_address    = 0; //frame_addr_w * ((search_blk_h - block_height) / 2);
     localparam right_blk_offset         = srch_addr_w - blk_addr_w;
     
-    typedef enum {ST_IDLE, ST_WAITBM, ST_STARTBM} statetype;
+    typedef enum {ST_IDLE, ST_WAITBM, ST_STARTBM, ST_WAIT_FILTER} statetype;
     statetype state;
     
     logic [5:0]     blk_col; //64*8=512 max pixels
@@ -120,7 +122,7 @@ module block_match_ctrl_fsm_new #(
                         if (blk_col == (center_blocks_per_row - 1)) begin
                             blk_col <= 0;
                             if (blk_row == (blocks_per_col - 1)) begin
-                                state       <= ST_IDLE;
+                                state       <= ST_WAIT_FILTER;
                                 img_number  <= img_number + 1;
                             end else begin
                                 blk_row         <= blk_row + 1;
@@ -136,6 +138,12 @@ module block_match_ctrl_fsm_new #(
                             srch_addr   <= srch_addr + blk_addr_w; // increment 1 block col
                             state       <= ST_WAITBM;
                         end
+                    end
+                end
+                
+                ST_WAIT_FILTER: begin
+                    if ((image_index_counter_left == img_number) && (image_index_counter_right == img_number)) begin
+                        state   <= ST_IDLE;
                     end
                 end
             endcase

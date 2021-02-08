@@ -17,12 +17,15 @@ module disparity_filtering_system #(
         input [15:0]            min_coords,
         input                   xors_valid,
         
+        output [3:0]            image_index_counter,
+        
         input [7:0]             gray_pixel_data,
         input                   gray_pixel_valid,
         output                  gray_pixel_ready,
     
         output [15:0]           disparity,
-        output                  disparity_valid
+        output                  disparity_valid,
+        input                   disparity_ready
     );
     
     localparam disp_bits = $clog2(search_blk_w - blk_w);
@@ -32,6 +35,7 @@ module disparity_filtering_system #(
     
     logic [decimate_factor - 1:0]   pix_stream_data;
     logic                           pix_stream_valid;
+    logic pix_proc_fifo_almost_full;
     
     xors_to_stream #(
         .blk_w              (blk_w),
@@ -46,6 +50,7 @@ module disparity_filtering_system #(
         .xors_valid (xors_valid),
         .confidence (confidence),
         .min_coords (min_coords),
+        .fifo_almost_full_in    (pix_proc_fifo_almost_full),
         .pix_stream_data    (pix_stream_data),
         .pix_stream_valid   (pix_stream_valid),
         .conf_out           (conf_data),
@@ -58,7 +63,8 @@ module disparity_filtering_system #(
     
     pixel_processor #(
         .dec_factor (decimate_factor),
-        .disp_bits  (disp_bits)
+        .disp_bits  (disp_bits),
+        .dec_frame_width    (frame_w / decimate_factor)
     ) p (
         .clk    (clk),
         .reset  (reset),
@@ -66,6 +72,7 @@ module disparity_filtering_system #(
         .disp_in    (disp_data),
         .conf_in    (conf_data),
         .disp_conf_valid    (pix_stream_valid),
+        .fifo_almost_full   (pix_proc_fifo_almost_full),
         .disp_conf_out      (disp_conf_out),
         .out_valid          (out_valid),
         .out_ready          (out_ready)
@@ -90,6 +97,23 @@ module disparity_filtering_system #(
         .out_ready  (downsample_pix_ready)
     );
     
-    
+    bram_filter_system #(
+        .dec_frame_w    (frame_w / decimate_factor),
+        .dec_frame_h    (frame_h / decimate_factor),
+        .disp_bits      (disp_bits)
+    ) bfs (
+        .clk    (clk),
+        .reset  (reset),
+        .disp_conf_in_data  (disp_conf_out),
+        .disp_conf_in_valid (out_valid),
+        .disp_conf_in_ready (out_ready),
+        .gray_in_data       (downsample_pix_data),
+        .gray_in_ready      (downsample_pix_ready),
+        .gray_in_valid      (downsample_pix_valid),
+        .out_data           (disparity),
+        .image_index_counter     (image_index_counter),
+        .out_valid          (disparity_valid),
+        .out_ready          (disparity_ready)
+    );
     
 endmodule

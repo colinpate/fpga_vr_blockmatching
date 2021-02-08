@@ -40,8 +40,13 @@ module bit_pixel_conversion_system #(
 		input  wire         pclk_reset_reset_n,                                    //                              pclk_reset.reset_n
         
         output wire [28:0]  read_addr_data_out,
-        output wire         read_addr_valid_out
+        output wire         read_addr_valid_out,
+        output wire [28:0]  read_addr_data_out_1,
+        output wire         read_addr_valid_out_1
 	);
+    
+    assign read_addr_data_out_1 = read_addr_data_out;
+    assign read_addr_valid_out_1 = read_addr_valid_out;
 
 	wire          gray_vertical_filter_bank_0_avalon_streaming_source_valid; // gray_vertical_filter_bank_0:bit_pixels_valid -> bram_writer_0:bit_pix_valid
 	wire   [23:0] gray_vertical_filter_bank_0_avalon_streaming_source_data;  // gray_vertical_filter_bank_0:bit_pixels -> bram_writer_0:bit_pix

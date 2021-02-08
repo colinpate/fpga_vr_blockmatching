@@ -33,6 +33,22 @@
          type = "int";
       }
    }
+   element ddr3_reader_gray_crop_left
+   {
+      datum _sortIndex
+      {
+         value = "7";
+         type = "int";
+      }
+   }
+   element ddr3_reader_gray_crop_right
+   {
+      datum _sortIndex
+      {
+         value = "8";
+         type = "int";
+      }
+   }
    element ddr3_writer_supersimple_0
    {
       datum _sortIndex
@@ -63,6 +79,14 @@
       {
          value = "0";
          type = "int";
+      }
+   }
+   element top_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
       }
    }
    element top_system
@@ -169,6 +193,16 @@
    dir="start" />
  <interface name="ddr3_clk" internal="ddr3_clk_src.clk_in" type="clock" dir="end" />
  <interface
+   name="ddr3_reader_gray_crop_left_ddr3_master"
+   internal="ddr3_reader_gray_crop_left.ddr3_master"
+   type="avalon"
+   dir="start" />
+ <interface
+   name="ddr3_reader_gray_crop_right_ddr3_master"
+   internal="ddr3_reader_gray_crop_right.ddr3_master"
+   type="avalon"
+   dir="start" />
+ <interface
    name="ddr3_reset"
    internal="ddr3_clk_src.clk_in_reset"
    type="reset"
@@ -225,6 +259,26 @@
   <parameter name="resetSynchronousEdges" value="NONE" />
  </module>
  <module
+   name="ddr3_reader_gray_crop_left"
+   kind="ddr3_reader_gray_crop"
+   version="1.0"
+   enabled="1">
+  <parameter name="crop_width" value="240" />
+  <parameter name="frame_lines" value="480" />
+  <parameter name="frame_width" value="768" />
+  <parameter name="i_am_left" value="1" />
+ </module>
+ <module
+   name="ddr3_reader_gray_crop_right"
+   kind="ddr3_reader_gray_crop"
+   version="1.0"
+   enabled="1">
+  <parameter name="crop_width" value="240" />
+  <parameter name="frame_lines" value="480" />
+  <parameter name="frame_width" value="768" />
+  <parameter name="i_am_left" value="0" />
+ </module>
+ <module
    name="ddr3_writer_supersimple_0"
    kind="ddr3_writer_supersimple"
    version="1.0"
@@ -278,6 +332,26 @@
  <connection
    kind="avalon_streaming"
    version="18.1"
+   start="bit_pixel_conversion_system_0.addr_src_0"
+   end="ddr3_reader_gray_crop_right.address_data_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="bit_pixel_conversion_system_0.addr_src_1"
+   end="ddr3_reader_gray_crop_left.address_data_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="ddr3_reader_gray_crop_left.avalon_streaming_source"
+   end="block_matching_system_0.gray_left_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
+   start="ddr3_reader_gray_crop_right.avalon_streaming_source"
+   end="block_matching_system_0.gray_right_sink" />
+ <connection
+   kind="avalon_streaming"
+   version="18.1"
    start="block_matching_system_0.disparity_left_source"
    end="ddr3_writer_supersimple_1.avalon_streaming_sink" />
  <connection
@@ -314,6 +388,16 @@
  <connection
    kind="clock"
    version="18.1"
+   start="ddr3_clk_src.clk"
+   end="ddr3_reader_gray_crop_left.ddr3clk_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="ddr3_clk_src.clk"
+   end="ddr3_reader_gray_crop_right.ddr3clk_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
    start="pclk_src.clk"
    end="ddr3_writer_supersimple_0.pclk" />
  <connection
@@ -326,6 +410,16 @@
    version="18.1"
    start="pclk_src.clk"
    end="bit_pixel_conversion_system_0.pclk_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_src.clk"
+   end="ddr3_reader_gray_crop_left.pclk_sink" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="pclk_src.clk"
+   end="ddr3_reader_gray_crop_right.pclk_sink" />
  <connection
    kind="conduit"
    version="18.1"
@@ -389,6 +483,16 @@
    kind="reset"
    version="18.1"
    start="ddr3_clk_src.clk_reset"
+   end="ddr3_reader_gray_crop_left.ddr3clk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3_clk_src.clk_reset"
+   end="ddr3_reader_gray_crop_right.ddr3clk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ddr3_clk_src.clk_reset"
    end="bit_pixel_conversion_system_0.ddr3clk_reset_sink" />
  <connection
    kind="reset"
@@ -400,6 +504,16 @@
    version="18.1"
    start="pclk_src.clk_reset"
    end="ddr3_writer_supersimple_1.pclk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_src.clk_reset"
+   end="ddr3_reader_gray_crop_left.pclk_reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="pclk_src.clk_reset"
+   end="ddr3_reader_gray_crop_right.pclk_reset" />
  <connection
    kind="reset"
    version="18.1"

@@ -7,7 +7,7 @@ module downsample_2d #(
         input           reset,
         input [7:0]     in_data,
         input           in_valid,
-        output          in_ready,
+        output logic    in_ready,
         output [7:0]    out_data,
         output          out_valid,
         input           out_ready

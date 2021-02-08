@@ -5,7 +5,8 @@ module filt_bram_reader_writer #(
     parameter frame_size = width * height,
     parameter addr_w = $clog2(frame_size),
     parameter disp_bits = 5,
-    parameter num_passes = 15
+    parameter num_passes = 15,
+    parameter gray_threshold = 10
     ) (
         input clk,
         input reset,
@@ -41,7 +42,7 @@ module filt_bram_reader_writer #(
     logic   wr_frame_last_addr;
     logic   filter_out_valid;
     
-    assign idle = (read_pass_cntr == 0);
+    assign idle = (read_pass_cntr == 0) && (wr_addr == 0);
     assign read_go = (read_pass_cntr != 0);
     assign wr_ena = filter_out_valid;
     assign rd_index = index_reg;
@@ -92,7 +93,7 @@ module filt_bram_reader_writer #(
             filter_in_valid         <= read_go;
             
             if (read_pass_cntr == 0) begin
-                if (start) begin
+                if (start && (wr_addr == 0)) begin // Don't want to start until the writer is done.
                     read_pass_cntr  <= num_passes;
                     index_reg       <= index_in;
                 end
@@ -102,10 +103,10 @@ module filt_bram_reader_writer #(
                     read_vertical   <= ~read_vertical; // Flip from vert/horiz or vice versa
                     read_pass_cntr  <= read_pass_cntr - 1;
                 end
+            end
                 
-                if (wr_frame_last_addr) begin
-                    write_vertical  <= ~write_vertical;
-                end
+            if (wr_frame_last_addr && filter_out_valid) begin
+                write_vertical  <= ~write_vertical;
             end
         end
     end
@@ -114,9 +115,13 @@ module filt_bram_reader_writer #(
     /*assign wr_data = rd_data;//{rd_data[disp_bits + 15 : 8], rd_data[7:0] + 1};
     assign filter_out_valid = filter_in_valid;*/
     
+    logic [7:0] filter_gray_out;
+    
+    assign wr_data[7:0] = (wr_addr < 8) ? 0 : filter_gray_out;
+    
     bilateral_filter_3x1 #(
         .disp_bits      (disp_bits),
-        .gray_threshold (5)
+        .gray_threshold (gray_threshold)
     ) bf (
         .clk                    (clk),
         .reset                  (reset),
@@ -128,7 +133,9 @@ module filt_bram_reader_writer #(
         .last_pixel_in_frame    (read_frame_last_addr_d1),
         .in_valid               (filter_in_valid),
         
-        .gray_out               (wr_data[7:0]),
+        .gray_out               (filter_gray_out),
+        .confidence_out         (wr_data[15:8]),
+        .disparity_out          (wr_data[disp_bits + 15:16]),
         .out_valid              (filter_out_valid)
     );
     

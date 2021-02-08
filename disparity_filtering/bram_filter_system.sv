@@ -14,6 +14,8 @@ module bram_filter_system #(
         input                   gray_in_valid,
         output                  gray_in_ready,
         
+        output [3:0]            image_index_counter,
+        
         output [15:0]           out_data,
         output                  out_valid,
         input                   out_ready
@@ -67,9 +69,17 @@ module bram_filter_system #(
     logic [1:0][bram_addr_w - 1:0]  bram_rd_addresses;
     logic [1:0][15 + disp_bits:0]   bram_rd_datas;
     
+    // The block match control FSM waits for filtering_done to start the
+    // next frame of block matches.
+    // This isn't set to be the idle bits because they get restarted automatically
+    // even before the next frame of block matching starts, so we'd have a lockout
+    //assign filtering_done = (bram_writer_wr_address == 0) && (out_rd_address == 0);
+    
     bram_filter_control_fsm bram_filter_control_fsm_inst (
         .clk                (clk),
         .reset              (reset),
+        
+        .image_index_counter    (image_index_counter),
         
         .bram_writer_2in_start  (bram_writer_2in_start),
         .bram_writer_2in_index  (bram_writer_2in_index_in),
@@ -115,7 +125,8 @@ module bram_filter_system #(
         .width  (dec_frame_w),
         .height (dec_frame_h),
         .disp_bits  (disp_bits),
-        .num_passes (4) // Dependent on timing really
+        .num_passes (6), // Dependent on timing really
+        .gray_threshold (10)
     ) fbrw_inst (
         .clk        (clk),
         .reset      (reset),
@@ -134,6 +145,10 @@ module bram_filter_system #(
         .wr_ena     (filt_wr_ena)
     );
     
+    logic [15 + disp_bits:0]    bram_reader_output;
+    // 20:16 are disparity, 15:8 are confidence, 7:0] are grayscale
+    assign out_data = {bram_reader_output[20:16], 3'b000, bram_reader_output[7:0]};
+    
     bram_reader_out #(
         .width  (dec_frame_w),
         .height (dec_frame_h),
@@ -141,7 +156,7 @@ module bram_filter_system #(
     ) bram_reader_out_inst (
         .clk        (clk),
         .reset      (reset),
-        .out_data   (out_data),
+        .out_data   (bram_reader_output),
         .out_valid  (out_valid),
         .out_ready  (out_ready),
         .start      (out_bram_reader_start),
