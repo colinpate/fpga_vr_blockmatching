@@ -81,6 +81,8 @@ module bilateral_filter_3x1 #(
     logic [1:0]                     valid_count_d2;
     logic                           accs_valid;
     logic [7:0]                     divided_conf;
+    logic [9:0]                     conf_acc_adj;
+    assign conf_acc_adj = (conf_acc == 0) ? 1 : conf_acc;
     
     always_comb begin
         divided_conf = 0;
@@ -105,7 +107,7 @@ module bilateral_filter_3x1 #(
     // This is a fixed IP that relies on the disparity being 10 bits. Latency is 5 clock cycles,
     pipelined_divide_15n_10d divider (
         .numer      (conf_disp_acc),
-        .denom      (conf_acc),
+        .denom      (conf_acc_adj),
         .clock      (clk),
         .quotient   (disparity_out)
     );

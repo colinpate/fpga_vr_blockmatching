@@ -82,7 +82,7 @@ module disparity_filtering_system #(
     logic       downsample_pix_valid;
     logic       downsample_pix_ready;
     
-    downsample_2d #(
+    downsample_1d #(
         .dec_factor (decimate_factor),
         .in_width   (frame_w),
         .in_height  (frame_h)
