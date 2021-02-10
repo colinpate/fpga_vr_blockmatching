@@ -123,8 +123,9 @@ module xors_to_stream_tb;
         .min_coords (blk_index),
         .pix_stream_data    (pix_stream_data),
         .pix_stream_valid   (pix_stream_valid),
-        .conf_out           (conf_data),
-        .disp_out           (disp_data)
+        .fifo_almost_full_in    (1'b0)
+        //.conf_out           (conf_data),
+        //.disp_out           (disp_data)
     );
     
     logic [13:0] disp_conf_out;
@@ -138,9 +139,9 @@ module xors_to_stream_tb;
         .disp_in    (disp_data),
         .conf_in    (conf_data),
         .disp_conf_valid    (pix_stream_valid),
-        .disp_conf_out      (disp_conf_out),
-        .conf_out           (conf_out),
-        .out_valid          (out_valid)
+        .disp_conf_out      (disp_conf_out)
+        //.conf_out           (conf_out),
+        //.out_valid          (out_valid)
     );
  
     logic [12:0]    filter_input;
