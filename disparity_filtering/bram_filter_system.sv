@@ -125,7 +125,7 @@ module bram_filter_system #(
         .width  (dec_frame_w),
         .height (dec_frame_h),
         .disp_bits  (disp_bits),
-        .num_passes (12), // Dependent on timing really
+        .num_passes (30), // Dependent on timing really
         .gray_threshold (10)
     ) fbrw_inst (
         .clk        (clk),

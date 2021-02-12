@@ -33,7 +33,7 @@ module disparity_filtering_system #(
     logic [7:0] conf_data;
     logic [7:0] disp_data;
     
-    logic [decimate_factor - 1:0]   pix_stream_data;
+    logic                           pix_stream_data;
     logic                           pix_stream_valid;
     logic pix_proc_fifo_almost_full;
     

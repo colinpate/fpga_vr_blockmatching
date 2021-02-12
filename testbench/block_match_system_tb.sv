@@ -131,7 +131,7 @@ module block_match_system_tb;
     
     block_matching_system #(
         .output_confidence  (0),
-        .decimate_factor    (2)
+        .decimate_factor    (3)
     ) u0 (
         .clk_clk                                      (clk50),                                      //                                  clk.clk
         .reset_reset_n                                (reset),                                //                                reset.reset_n

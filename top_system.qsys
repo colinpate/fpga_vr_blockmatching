@@ -245,7 +245,7 @@
   <parameter name="blk_h" value="16" />
   <parameter name="blk_w" value="16" />
   <parameter name="center_w" value="304" />
-  <parameter name="decimate_factor" value="2" />
+  <parameter name="decimate_factor" value="3" />
   <parameter name="output_confidence" value="1" />
   <parameter name="search_blk_h" value="24" />
   <parameter name="search_blk_w" value="48" />
@@ -264,6 +264,7 @@
    version="1.0"
    enabled="1">
   <parameter name="crop_width" value="240" />
+  <parameter name="decimate_factor" value="3" />
   <parameter name="frame_lines" value="480" />
   <parameter name="frame_width" value="768" />
   <parameter name="i_am_left" value="1" />
@@ -274,6 +275,7 @@
    version="1.0"
    enabled="1">
   <parameter name="crop_width" value="240" />
+  <parameter name="decimate_factor" value="3" />
   <parameter name="frame_lines" value="480" />
   <parameter name="frame_width" value="768" />
   <parameter name="i_am_left" value="0" />
@@ -295,7 +297,7 @@
    enabled="1">
   <parameter name="burst_len" value="8" />
   <parameter name="in_width" value="16" />
-  <parameter name="num_pixels" value="230400" />
+  <parameter name="num_pixels" value="102400" />
   <parameter name="start_address" value="939524096" />
  </module>
  <module

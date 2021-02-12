@@ -58,12 +58,12 @@ def main():
             array_list.append(right_block)
             
             
-    dec_factor = 3
+    dec_factor = 2
     smol_array = np.zeros((0))
     for smol_y in range(0, third_height, dec_factor):
         for smol_x in range(0, third_width, dec_factor):
             smol_block = array_right[smol_y:smol_y+dec_factor,smol_x:smol_x+dec_factor].copy()
-            smol_array = np.concatenate((smol_array, smol_block.flatten()))
+            smol_array = np.concatenate((smol_array, smol_block.transpose().flatten()))
         
         
     array_to_file([smol_array], outname="compare_out_r.bin")
