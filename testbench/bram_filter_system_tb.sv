@@ -6,11 +6,23 @@ module bram_filter_system_tb;
     logic reset;
     always #5ns clk50 = ~clk50;
     
+    logic [3:0] foo;
+    logic [3:0] foo2;
+    
     initial begin
         clk50 = 0;
         reset = 1;
         
+        foo = 4'hF;
+        foo2 = 4'h0;
         #100ns reset = 0;
+        if (foo != (foo2 - 1)) begin
+            $error("BAD!!! %08x %04x", (foo2 - 1), foo);
+        end else begin
+            $display("Good :)");
+            $stop;
+        end
+        
         
         #500000ns;
         

@@ -31,9 +31,12 @@ module bram_filter_system #(
     
     // bram_writer_2in data outputs
     logic                       bram_writer_index_out;
-    logic [15 + disp_bits:0]    bram_writer_wr_data;
-    logic [bram_addr_w - 1:0]   bram_writer_wr_address;
-    logic                       bram_writer_wr_ena;
+    logic [7 + disp_bits:0]     cd_writer_wr_data;
+    logic [bram_addr_w - 1:0]   cd_writer_wr_address;
+    logic                       cd_writer_wr_ena;
+    logic [7 + disp_bits:0]     gray_writer_wr_data;
+    logic [bram_addr_w - 1:0]   gray_writer_wr_address;
+    logic                       gray_writer_wr_ena;
 
     // filter bram writer control
     logic filt_bram_rw_start;
@@ -116,9 +119,12 @@ module bram_filter_system #(
         .idle           (bram_writer_2in_idle),
         
         .wr_bram_index  (bram_writer_index_out),
-        .wr_data        (bram_writer_wr_data), // {disp, conf, gray}
-        .wr_address     (bram_writer_wr_address),
-        .wr_ena         (bram_writer_wr_ena)
+        .a_wr_data      (cd_writer_wr_data), // {disp, conf}
+        .a_wr_address   (cd_writer_wr_address),
+        .a_wr_ena       (cd_writer_wr_ena),
+        .b_wr_data      (gray_writer_wr_data), // {gray}
+        .b_wr_address   (gray_writer_wr_address),
+        .b_wr_ena       (gray_writer_wr_ena)
     );
     
     filt_bram_reader_writer #(
@@ -162,12 +168,39 @@ module bram_filter_system #(
         .start      (out_bram_reader_start),
         .bram_index_in  (out_bram_reader_index),
         .idle           (out_bram_reader_idle),
-        .rd_bram_index  (out_rd_index_out),
+        //.rd_bram_index  (out_rd_index_out), Not used
         .rd_data        (out_rd_data),
         .rd_address     (out_rd_address)
     );
     
-    always_comb begin
+    dual_bram_module #(
+        .frame_w        (dec_frame_w),
+        .frame_h        (dec_frame_h),
+        .disp_bits      (disp_bits),
+        .bram_addr_w    (bram_addr_w)
+    ) dual_bram_module_inst (
+        .clk                    (clk),
+        .bram_writer_index      (bram_writer_index_out),
+        .cd_writer_wr_data      (cd_writer_wr_data),
+        .cd_writer_wr_address   (cd_writer_wr_address),
+        .cd_writer_wr_ena       (cd_writer_wr_ena),
+        .gray_writer_wr_data    (gray_writer_wr_data),
+        .gray_writer_wr_address (gray_writer_wr_address),
+        .gray_writer_wr_ena     (gray_writer_wr_ena),
+        .filt_wr_index          (filt_wr_index),
+        .filt_wr_data           (filt_wr_data),
+        .filt_wr_address        (filt_wr_address),
+        .filt_wr_ena            (filt_wr_ena),
+        .filt_rd_index          (filt_rd_index_out),
+        .filt_rd_data           (filt_rd_data),
+        .filt_rd_address        (filt_rd_address),
+        .out_rd_index           (out_bram_reader_index),
+        .out_rd_data            (out_rd_data),
+        .out_rd_address         (out_rd_address)
+    );
+        
+    
+    /*always_comb begin
         bram_wr_addresses = 'b0;
         bram_rd_addresses = 'b0;
         bram_wr_enas = 'b0;
@@ -225,6 +258,6 @@ module bram_filter_system #(
         .wren       (bram_wr_enas),
         .wr_data    (bram_wr_datas),
         .rd_data    (bram_rd_datas)
-    );
+    );*/
 endmodule
     

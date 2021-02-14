@@ -68,6 +68,9 @@ module block_match_ctrl_fsm_new #(
     logic [15:0]    srch_buf_offset;
     logic [15:0]    blk_buf_offset;
     logic [3:0]     img_number;
+    logic [3:0]     next_img_number;
+    
+    assign next_img_number = img_number + 1;
     
     assign bm_working_buf = img_number[0];
     assign bm_idle = (state == ST_IDLE) && bm_done;
@@ -87,6 +90,15 @@ module block_match_ctrl_fsm_new #(
     
     assign blk_index_left = {img_number, blk_row, blk_col};
     assign blk_index_right = blk_index_left;
+    
+    /* How it fails:
+    BWR starts and finishes.
+    BWR starts. Buf out index => 1, image number => 1.
+    BM starts. Buf out index = 0, image number = 0.
+    BWR finishes. It waits until BM buf out index = 1
+    BM finishes. Buf out index => 1, 
+    BWR starts.
+    */
     
     always @(posedge clk)
     begin
@@ -123,7 +135,6 @@ module block_match_ctrl_fsm_new #(
                             blk_col <= 0;
                             if (blk_row == (blocks_per_col - 1)) begin
                                 state       <= ST_WAIT_FILTER;
-                                img_number  <= img_number + 1;
                             end else begin
                                 blk_row         <= blk_row + 1;
                                 srch_addr       <= srch_row_addr;
@@ -142,8 +153,9 @@ module block_match_ctrl_fsm_new #(
                 end
                 
                 ST_WAIT_FILTER: begin
-                    if ((image_index_counter_left == img_number) && (image_index_counter_right == img_number)) begin
-                        state   <= ST_IDLE;
+                    if ((image_index_counter_left == next_img_number) && (image_index_counter_right == next_img_number)) begin
+                        state       <= ST_IDLE;
+                        img_number  <= img_number + 1;
                     end
                 end
             endcase

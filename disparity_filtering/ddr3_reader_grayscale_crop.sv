@@ -148,7 +148,7 @@ module ddr3_reader_grayscale_crop
     
     scfifo_wrapper #(
         .width  (29),
-        .depth  (8)
+        .depth  (16)
     ) address_fifo (
         .clock  (ddr3clk),
         .data   (address_in_data),
