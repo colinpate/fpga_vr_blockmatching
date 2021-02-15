@@ -12,8 +12,8 @@ module xors_to_stream_tb;
     parameter third_height = 480;
     parameter third_end_address = third_width * third_height / blk_w; // 16 is wr port width
  
-    parameter decimate_factor = 3;
-    parameter result_per_read = 24 / decimate_factor;
+    parameter decimate_factor = 2;
+    parameter result_per_read = 24;
     
     always #6250ps clk50 = ~clk50;
     always #10000ps clk48 = ~clk48;
@@ -24,7 +24,7 @@ module xors_to_stream_tb;
     
     int File_out;
     logic unsigned [23:0] pixel_out, fmems_out [$:third_end_address];
-    logic [third_end_address*blk_w/decimate_factor - 1:0][decimate_factor  - 1:0] result_data;
+    logic [third_end_address*blk_w - 1:0] result_data;
     initial begin
         File = $fopen("stimulus_in_xor.bin", "rb");
         if (!File)
@@ -50,7 +50,7 @@ module xors_to_stream_tb;
             end
             $fclose(File_out);
         end
-        for (int i = 0; i < third_end_address; i++) begin
+        for (int i = 0; i < third_end_address*blk_w/result_per_read; i++) begin
             result_data[i*result_per_read+:result_per_read] = fmems_out[i];
         end
     
@@ -69,7 +69,7 @@ module xors_to_stream_tb;
     
     parameter blk_h = 16;
  
-    logic [decimate_factor - 1:0] pix_stream_data;
+    logic pix_stream_data;
     logic pix_stream_valid;
     logic [7:0] blk_counter;
     integer blk_index;
@@ -123,8 +123,9 @@ module xors_to_stream_tb;
         .min_coords (blk_index),
         .pix_stream_data    (pix_stream_data),
         .pix_stream_valid   (pix_stream_valid),
-        .conf_out           (conf_data),
-        .disp_out           (disp_data)
+        .fifo_almost_full_in    (1'b0)
+        //.conf_out           (conf_data),
+        //.disp_out           (disp_data)
     );
     
     logic [13:0] disp_conf_out;
@@ -139,88 +140,9 @@ module xors_to_stream_tb;
         .conf_in    (conf_data),
         .disp_conf_valid    (pix_stream_valid),
         .disp_conf_out      (disp_conf_out),
-        .conf_out           (conf_out),
-        .out_valid          (out_valid)
+        .out_ready          (1'b1)
+        //.conf_out           (conf_out),
+        //.out_valid          (out_valid)
     );
  
-    logic [12:0]    filter_input;
-    logic filter_in_valid;
-    integer filter_counter;
-    assign filter_input = ((filter_counter == 119) || (filter_counter == 0)) ? (1 << 12) : 0;
-    always @(posedge clk50) begin
-        if (~reset) begin
-            filter_counter  <= 0;
-            filter_in_valid <= 0;
-        end else begin
-            filter_in_valid <= ~filter_in_valid;
-            if (filter_in_valid) begin
-                if (filter_counter == 119) begin
-                    filter_counter  <= 0;
-                end else begin
-                    filter_counter  <= filter_counter + 1;
-                end
-            end
-        end
-    end
- 
-    logic [12:0] dc_to_bram;
-    logic [7:0] c_to_bram;
-    logic valid_to_bram;
-    
-    filter_and_pad_bank f(
-        .clk    (clk50),
-        .reset  (~reset),
-        .disp_conf_in   (disp_conf_out),
-        //.disp_conf_in   (filter_input),
-        .conf_in        (conf_out),
-        //.conf_in        (filter_input >> 5),
-        //.conf_in_valid  (filter_in_valid),
-        .conf_in_valid  (out_valid),
-        
-        .disp_conf_out  (dc_to_bram),
-        .conf_out       (c_to_bram),
-        .conf_out_valid (valid_to_bram)
-    );
-    
-    logic [12:0]    dc_from_bram;
-    logic [7:0]     c_from_bram;
-    logic valid_from_bram;
-    
-    bram_reader_writer brw1(
-        .clk    (clk50),
-        .reset  (~reset),
-        .in_data    ({dc_to_bram, c_to_bram}),
-        .in_valid   (valid_to_bram),
-        .out_data   ({dc_from_bram, c_from_bram}),
-        .out_valid  (valid_from_bram)
-    );
-    
-    logic [12:0]    dc_to_div;
-    logic [7:0]     c_to_div;
-    logic valid_to_div;
-    
-    filter_and_pad_bank #(
-        .line_len(240)
-    )f2(
-        .clk    (clk50),
-        .reset  (~reset),
-        .disp_conf_in   (dc_from_bram),
-        //.disp_conf_in   (filter_input),
-        .conf_in        (c_from_bram),
-        //.conf_in        (filter_input >> 5),
-        //.conf_in_valid  (filter_in_valid),
-        .conf_in_valid  (valid_from_bram),
-        
-        .disp_conf_out  (dc_to_div),
-        .conf_out       (c_to_div),
-        .conf_out_valid (valid_to_div)
-    );
-    
-    conf_disp_divide cdd(
-        .clk    (clk50),
-        .reset  (~reset),
-        .in_conf    (c_to_div),
-        .in_conf_disp   (dc_to_div),
-        .in_valid   (valid_to_div)
-    );
 endmodule

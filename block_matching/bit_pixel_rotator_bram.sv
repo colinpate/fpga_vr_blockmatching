@@ -102,6 +102,12 @@ module bit_pixel_rotator_bram #(
     logic [15:0]        next_wr_base_addr;
     logic [15:0]        next_third_base_addr;
     
+    logic               bm_working_buf_reg;
+    logic [3:0]         bm_image_counter;
+    logic [3:0]         prev_image_number;
+    
+    assign prev_image_number = image_number - 1;
+    
     assign pix_out_wren     = (state == ST_IDLE) && (~fifo_empty);
     assign pix_out          = test_mode ? {buf_out_index, third_index_in, wr_addr[12:0]} : fifo_out_pix;
     assign pix_fifo_rd      = pix_out_wren;
@@ -111,7 +117,7 @@ module bit_pixel_rotator_bram #(
     assign fifo_out_pix     = pix_fifo_q[15:0];
     assign sof              = pix_fifo_q[17];
     assign third_index_in   = pix_fifo_q[19:18];
-    assign fifo_almost_full = fifo_usedw > 31;
+    assign fifo_almost_full = fifo_usedw > 256;
     assign writing_center   = (third_index_in == 2'b01);
     assign wr_cols          = writing_center ? center_wr_cols : third_wr_cols;
     localparam third_offset = third_wr_cols * wr_rows;
@@ -135,14 +141,20 @@ module bit_pixel_rotator_bram #(
         
     always @(posedge clk) begin
         if (reset) begin
-            state           <= ST_IDLE;
-            buf_out_index   <= 0;
-            write_col       <= 0;
-            write_row       <= 0;
-            wr_addr         <= 0;
-            image_number    <= 0;
+            state               <= ST_IDLE;
+            buf_out_index       <= 0;
+            write_col           <= 0;
+            write_row           <= 0;
+            wr_addr             <= 0;
+            image_number        <= 0;
+            bm_working_buf_reg  <= 1'b0;
+            bm_image_counter    <= 0;
         end else begin
-            //if (bit_pix_valid) valid_cnt    <= valid_cnt + 1;
+            if (bm_working_buf_reg == (~bm_working_buf)) begin
+                bm_image_counter    <= bm_image_counter + 1;
+                bm_working_buf_reg  <= bm_working_buf;
+            end
+            
             case (state)
                 ST_IDLE: begin
                     if (~fifo_empty) begin // That means the FIFO has been read and the BRAM is being written
@@ -152,11 +164,14 @@ module bit_pixel_rotator_bram #(
                                 write_col   <= 0;
                                 if (third_index_in == 2'b10) begin
                                     wr_addr         <= next_wr_base_addr;
-                                    if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
+                                    //if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
+                                    if (bm_image_counter != prev_image_number) begin
                                         // Block matching FSM is waiting for new frames, or its not working on buffer we want next.
+                                        // If we just finished frame 1, and it's still running, it'll be on frame 0
+                                        // But if we just finished frame 1, and it's done, it'll be on frame 1 so we can start frame 2
                                         buf_out_index   <= !buf_out_index;
                                         image_number    <= image_number + 1;
-                                    end else begin
+                                    end else begin //If we finish and the BMFSM is still not on our last frame, we have to wait
                                         // Block matching FSM is working on the buffer we want to write to :(
                                         state           <= ST_STALL;
                                     end
@@ -176,7 +191,8 @@ module bit_pixel_rotator_bram #(
                 end
                 
                 ST_STALL: begin
-                    if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
+                    //if (bm_idle || (bm_working_buf != (!buf_out_index))) begin
+                    if (bm_image_counter != prev_image_number) begin
                         buf_out_index   <= !buf_out_index;
                         image_number    <= image_number + 1;
                         state           <= ST_IDLE;

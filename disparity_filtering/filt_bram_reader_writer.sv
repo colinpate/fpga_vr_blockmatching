@@ -117,7 +117,7 @@ module filt_bram_reader_writer #(
     
     logic [7:0] filter_gray_out;
     
-    assign wr_data[7:0] = (wr_addr < 8) ? 0 : filter_gray_out;
+    assign wr_data[7:0] = filter_gray_out; //(wr_addr < 8) ? 0 : filter_gray_out; This was for debugging
     
     bilateral_filter_3x1 #(
         .disp_bits      (disp_bits),

@@ -84,15 +84,15 @@ module bilateral_filter_3x1 #(
     logic [9:0]                     conf_acc_adj;
     assign conf_acc_adj = (conf_acc == 0) ? 1 : conf_acc;
     
-    always_comb begin
+    /*always_comb begin
         divided_conf = 0;
         case (valid_count_d2)
             2'b01: divided_conf = conf_acc;
-            2'b10: divided_conf = conf_acc >> 1;
+            2'b10: divided_conf = conf_acc[0] ? (conf_acc >> 1) + 1 : (conf_acc >> 1);
             2'b11: divided_conf = (conf_acc >> 2) + (conf_acc >> 4) + (conf_acc >> 6); // (1/4) + (1/16) + (1/64) approximates 1/3
             default: divided_conf = 0;
         endcase
-    end
+    end*/
     
     // Pipeline stage infinity
     localparam num_div_stages = 5;
@@ -103,6 +103,9 @@ module bilateral_filter_3x1 #(
     assign gray_out = gray_d2;
     assign disparity_out = conf_disp_acc / conf_acc;
     assign confidence_out = conf_acc / valid_count_d2;*/
+    logic [7:0] conf_div_result;
+    logic [1:0] conf_div_rem;
+    assign confidence_out = (conf_div_rem) ? conf_div_result + 1 : conf_div_result;
     
     // This is a fixed IP that relies on the disparity being 10 bits. Latency is 5 clock cycles,
     pipelined_divide_15n_10d divider (
@@ -111,7 +114,14 @@ module bilateral_filter_3x1 #(
         .clock      (clk),
         .quotient   (disparity_out)
     );
-    assign confidence_out   = conf_out_sreg[0];
+    pipelined_divide_15n_10d divider_conf (
+        .numer      ({5'd0, conf_acc}),
+        .denom      ({8'd0, valid_count_d2}),
+        .clock      (clk),
+        .quotient   (conf_div_result),
+        .remain     (conf_div_rem)
+    );
+    //assign confidence_out   = conf_out_sreg[0];
     assign gray_out         = gray_out_sreg[0];
     assign out_valid        = output_valid_sreg[0];
     

@@ -5,8 +5,8 @@ module pixel_processor #(
     ) (
     input clk,
     input reset,
-    
-    input [dec_factor - 1:0]    pixels_in,
+        
+    input                       pixels_in,
     input [disp_bits - 1:0]     disp_in,
     input [7:0]                 conf_in,
     input                       disp_conf_valid,
@@ -17,34 +17,18 @@ module pixel_processor #(
     input                       out_ready
     );
     
-    localparam num_pop_counts = (dec_factor * dec_factor) / 4;
     localparam frac_bits = 8;
     localparam frac_factor = (1 << frac_bits) / (dec_factor * dec_factor);
     localparam fifo_depth = dec_frame_width * 8;
     
     logic [$clog2(fifo_depth) - 1:0] fifo_usedw;
-    logic [dec_factor - 1:0][dec_factor - 1:0] pixels_in_sreg;
-    logic [num_pop_counts - 1:0][2:0] pop_count_result;
-    logic [num_pop_counts * 4 - 1:0] pop_count_input;
-    logic [$clog2(dec_factor * dec_factor):0]   pop_count_sum;
     
     assign fifo_almost_full = fifo_usedw > (fifo_depth - 16);
-    assign pop_count_input = pixels_in_sreg;
-    
-    pop_count pc1[num_pop_counts - 1:0](
-        .in     (pop_count_input),
-        .out    (pop_count_result)
-    );
-    
-    always_comb begin
-        pop_count_sum = 0;
-        for (int i = 0; i < num_pop_counts; i++) begin
-            pop_count_sum = pop_count_sum + pop_count_result[i];
-        end
-    end
     
     logic [7:0] conf_result;
-    logic [$clog2(dec_factor) - 1:0]    shift_counter;
+    logic [$clog2(dec_factor * dec_factor) - 1:0]    input_counter;
+    logic [$clog2(dec_factor * dec_factor):0]   pop_count_reg;
+    logic [$clog2(dec_factor * dec_factor):0]   pop_count_next;
     logic                   conf_result_valid;
     logic                   conf_result_valid_d1;
     logic [7:0]             conf_result_reg;
@@ -55,12 +39,14 @@ module pixel_processor #(
     logic                   fifo_empty;
     
     // Stage 1 of the pipeline
-    assign conf_result = (pop_count_sum * conf_reg) >> frac_bits; // 8p8 * 3p0 >> 8 = 11p0 but pop_count_sum * frac_factor can't be more than 256 so it's okay
-    assign conf_result_valid = disp_conf_valid && (shift_counter == (dec_factor - 1));
+    assign conf_result = (pop_count_next * conf_reg) >> frac_bits; // 8p8 * 3p0 >> 8 = 11p0 but pop_count_sum * frac_factor can't be more than 256 so it's okay
+    assign conf_result_valid = disp_conf_valid && (input_counter == ((dec_factor * dec_factor) - 1));
+    assign pop_count_next = pop_count_reg + (pixels_in ? 0 : 1); // Invert the pixel because we want confidence to be higher if XOR = 0
     
     always @(posedge clk) begin
         if (reset) begin
-            shift_counter   <= 0;
+            pop_count_reg   <= 0;
+            input_counter   <= 0;
             conf_result_reg <= 0;
             fifo_wr         <= 0;
             disp_reg        <= 0;
@@ -73,11 +59,12 @@ module pixel_processor #(
             disp_reg                <= disp_in;
             conf_reg                <= (conf_in << 1) * frac_factor; //8p0 * 0p8 = 8p8
             if (disp_conf_valid) begin
-                pixels_in_sreg  <= {pixels_in_sreg[dec_factor - 2:0], (~pixels_in)};
-                if (shift_counter == (dec_factor - 1)) begin
-                    shift_counter   <= 0;
+                if (input_counter == ((dec_factor * dec_factor) - 1)) begin
+                    input_counter   <= 0;
+                    pop_count_reg   <= 0;
                 end else begin
-                    shift_counter   <= shift_counter + 1;
+                    input_counter   <= input_counter + 1;
+                    pop_count_reg   <= pop_count_next;
                 end
             end
             
