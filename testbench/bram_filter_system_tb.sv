@@ -33,7 +33,7 @@ module bram_filter_system_tb;
     
     parameter frame_w = 240;
     parameter frame_h = 480;
-    parameter dec_factor = 2;
+    parameter dec_factor = 3; // Make sure to change this in the python
     parameter dec_frame_w = frame_w / dec_factor;
     parameter dec_frame_h = frame_h / dec_factor;
  

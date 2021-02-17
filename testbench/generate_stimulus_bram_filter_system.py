@@ -51,7 +51,7 @@ def write_conf_disp_file(conf_array, disp_array, filename):
 def main():
     third_width = 240
     third_height = 480
-    dec_factor = 2
+    dec_factor = 3 # Make sure to change this in the testbench
     dec_w = int(third_width / dec_factor)
     dec_h = int(third_height / dec_factor)
     
