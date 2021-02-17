@@ -40,7 +40,8 @@ module bram_reader_out #(
         .depth  (fifo_depth)
     ) output_fifo (
         .clock      (clk),
-        .data       ((rd_address < 16) ? 0 : rd_data),
+        //.data       ((rd_address < 16) ? 0 : rd_data),
+        .data       (rd_data),
         .rdreq      (out_ready && (!fifo_empty)),
         .sclr       (reset),
         .wrreq      (read_data_valid),

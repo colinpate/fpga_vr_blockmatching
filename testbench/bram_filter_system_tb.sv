@@ -8,23 +8,25 @@ module bram_filter_system_tb;
     
     logic [3:0] foo;
     logic [3:0] foo2;
+    logic gray_wr_enable;
     
     initial begin
+        gray_wr_enable = 0;
         clk50 = 0;
         reset = 1;
         
         foo = 4'hF;
         foo2 = 4'h0;
         #100ns reset = 0;
-        if (foo != (foo2 - 1)) begin
+        /*if (foo != (foo2 - 1)) begin
             $error("BAD!!! %08x %04x", (foo2 - 1), foo);
         end else begin
             $display("Good :)");
             $stop;
-        end
+        end*/
         
         
-        #500000ns;
+        #9800us;
         
         $stop;
     end
@@ -51,7 +53,9 @@ module bram_filter_system_tb;
     logic           grayds_in_valid;
     logic           grayds_in_ready;
     
-    downsample_2d #(
+    always @(posedge clk50) gray_wr_enable <= ~gray_wr_enable;
+    
+    /*downsample_2d #(
         .dec_factor (dec_factor),
         .in_width   (frame_w),
         .in_height  (frame_h)
@@ -64,6 +68,18 @@ module bram_filter_system_tb;
         .out_data   (grayds_in),
         .out_valid  (grayds_in_valid),
         .out_ready  (grayds_in_ready)
+    );*/
+    
+    input_stream #(
+        .data_width (8),
+        .data_len   (dec_frame_w * dec_frame_h),
+        .file_path  ("gray_in_data.bin")
+    ) input_stream_gray (
+        .clk    (clk50),
+        .reset  (reset),
+        .data_out_valid (gray_in_valid),
+        .data_out_ready (gray_in_ready && gray_wr_enable),
+        .data_out       (gray_in)
     );
     
     input_stream #(
@@ -74,20 +90,8 @@ module bram_filter_system_tb;
         .clk    (clk50),
         .reset  (reset),
         .data_out_valid (disp_conf_in_valid),
-        .data_out_ready (disp_conf_in_ready),
+        .data_out_ready (disp_conf_in_ready && gray_wr_enable),
         .data_out       (disp_conf_in)
-    );
-    
-    input_stream #(
-        .data_width (8),
-        .data_len   (frame_w * frame_h),
-        .file_path  ("upsampled_gray_in.bin")
-    ) input_stream_gray (
-        .clk    (clk50),
-        .reset  (reset),
-        .data_out_valid (gray_in_valid),
-        .data_out_ready (gray_in_ready),
-        .data_out       (gray_in)
     );
  
     bram_filter_system #(
@@ -98,17 +102,17 @@ module bram_filter_system_tb;
         .clk    (clk50),
         .reset  (reset),
         .disp_conf_in_data  (disp_conf_in),
-        .disp_conf_in_valid (disp_conf_in_valid),
+        .disp_conf_in_valid (disp_conf_in_valid && gray_wr_enable),
         .disp_conf_in_ready (disp_conf_in_ready),
-        .gray_in_data       (grayds_in),
-        .gray_in_valid      (grayds_in_valid),
-        .gray_in_ready      (grayds_in_ready),
+        .gray_in_data       (gray_in),
+        .gray_in_valid      (gray_in_valid && gray_wr_enable),
+        .gray_in_ready      (gray_in_ready),
         .out_ready          (1'b1),
         .out_valid          (out_valid),
         .out_data           (out_data)
     );
     
-    output_compare #(
+    /*output_compare #(
         .data_width (8),
         .data_len   (dec_frame_w * dec_frame_h),
         .file_path  ("gray_in_data.bin")
@@ -117,18 +121,18 @@ module bram_filter_system_tb;
         .reset  (reset),
         .data_in_valid  (out_valid),
         .data_in        (out_data)
-    );
-    
-    /*output_compare #(
-        .data_width (256),
-        .data_len   (15*30),
-        .file_path  ("xors_left.bin")
-    ) output_compare_left_xors  (
-        .clk    (clk50),
-        .reset  (~reset),
-        .data_in_valid  (u0.cropped_blk_valid_left),
-        .data_in        (u0.disparity_gen_left.min_dist_finder.min_xors)
     );*/
+    
+    output_compare #(
+        .data_width (16),
+        .data_len   (dec_frame_w * dec_frame_h),
+        .file_path  ("filtered_disp_conf_data.bin")
+    ) output_compare_stuff  (
+        .clk    (clk50),
+        .reset  (reset),
+        .data_in_valid  (out_valid),
+        .data_in        ({3'b000, bfs1.bram_reader_output[20:8]})
+    );
     
 
 endmodule
