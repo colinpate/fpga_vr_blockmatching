@@ -6,7 +6,8 @@
 module bit_pixel_conversion_system #(
     parameter third_cols = 240,
     parameter third_rows = 480,
-    parameter center_cols = 304
+    parameter center_cols = 304,
+    parameter ddr3_reader_test_mode = 0
     ) (
 		output wire [15:0]  bram_writer_0_avalon_master_writedata,                 //             bram_writer_0_avalon_master.writedata
 		output wire         bram_writer_0_avalon_master_write,                     //                                        .write
@@ -85,7 +86,7 @@ module bit_pixel_conversion_system #(
 	);
 
 	ddr3_reader_fsm #(
-		.test_mode (1),
+		.test_mode (ddr3_reader_test_mode),
         .center_w   (center_cols),
         .third_w    (third_cols)
 	) ddr3_reader_fsm_0 (
